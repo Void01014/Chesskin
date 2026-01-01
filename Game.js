@@ -5,11 +5,26 @@ import Rook from "./Pieces/Rook.js";
 import Knight from "./Pieces/Knight.js";
 import Bishop from "./Pieces/Bishop.js";
 import Pawn from "./Pieces/Pawn.js";
+import Piece from "./Pieces/Piece.js";
 
+// Turn Manager
+const gameState = {
+    IDLE: 'IDLE',
+    SELECTING_PIECE: 'SELECTING_PIECE',
+    SELECTING_MOVE: 'SELECTING_MOVE',
+    PAUSED: 'PAUSED',
+    GMAE_OVER: 'GMAE_OVER',
+}
 
 export default class Game{
+    
     constructor(){
         this.board = new Board();
+        this.state = gameState.SELECTING_PIECE;
+        this.currentPlayer = 'white';
+        this.selectedSquare = null;
+        this.validMovesForSelected = [];
+
         this.initializeBoard();
     }    
 
@@ -32,11 +47,49 @@ export default class Game{
         }
 
         //for White
-        placeBackRank('white', 0);
-        placePawns('white', 1)
+        placeBackRank('white', 7);
+        placePawns('white', 6)
         
         //for Black 
-        placePawns('black', 6)
-        placeBackRank('black', 7);
+        placeBackRank('black', 0);
+        placePawns('black', 1)
+    }
+
+    //////////////////////////////////////////////
+
+    handleSquareClick(row, col){
+        if(this.state == gameState.SELECTING_PIECE){
+            this.handleSelection(row, col);
+        }else if (this.state = gameState.SELECTING_MOVE){
+            this.handleMove(row, col);
+        } 
+    }
+
+    handleSelection(row, col){
+        const piece = this.board.getPiece(row, col);
+        if(piece && piece.color == this.currentPlayer){
+            this.selectedSquare = {row, col};
+            this.state = gameState.SELECTING_MOVE;
+            console.log(`Selected ${piece.constructor.name} at ${row},${col}. Now pick a destination.`);
+        }else{
+            console.log("Empty square or wrong color!");
+        }
+    }
+
+    handleMove(row, col){
+        // Here is where you will eventually check if the move is legal
+        // For now, let's just move it to show the state swap
+
+        const piece = this.board.getPiece(this.selectedSquare.row, this.selectedSquare.col);
+
+        this.board.setPiece(row, col, piece);
+        this.board.setPiece(this.selectedSquare.row, this.selectedSquare.col, null);
+
+        console.log(`Moved to ${row},${col}`);
+        //cleaning the board
+        this.selectedSquare = null;
+        this.currentPlayer = this.currentPlayer === 'white' ? 'black' : 'white';
+        this.state = gameState.SELECTING_PIECE;
+        this.validMovesForSelected = [];
     }
 }

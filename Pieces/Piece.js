@@ -1,8 +1,7 @@
 export default class Piece{
-    constructor(color, position) {
+    constructor(color) {
         this.color = color;
-        this.position = position;
     }
 
-    getMoves(board){}
+    getMoves(board, position){}
 }

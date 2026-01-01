@@ -14,10 +14,10 @@ export default class Board {
     const display = this.grid.map(row => 
         row.map(piece => {
             if (!piece) return " . ";
-            const char = piece.constructor.name[0]; // Gets 'P' for Pawn, 'K' for King, etc.
+            const char = piece.constructor.name[0];
             return piece.color === 'white' ? ` ${char.toUpperCase()} ` : ` ${char.toLowerCase()} `;
         }).join("")
-    ).reverse().join("\n"); // Reverse so row 0 is at the bottom
+    ).join("\n");
 
     console.log(display);
 }
