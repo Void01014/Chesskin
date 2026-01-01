@@ -1,13 +1,13 @@
-import Board from "./Board";
-import King from "./Pieces/King";
-import Queen from "./Pieces/Queen";
-import Rook from "./Pieces/Rook";
-import Knight from "./Pieces/Knight";
-import Bishop from "./Pieces/Bishop";
-import Pawn from "./Pieces/Pawn";
+import Board from "./Board.js";
+import King from "./Pieces/King.js";
+import Queen from "./Pieces/Queen.js";
+import Rook from "./Pieces/Rook.js";
+import Knight from "./Pieces/Knight.js";
+import Bishop from "./Pieces/Bishop.js";
+import Pawn from "./Pieces/Pawn.js";
 
 
-class Game{
+export default class Game{
     constructor(){
         this.board = new Board();
         this.initializeBoard();
@@ -31,5 +31,12 @@ class Game{
             }
         }
 
+        //for White
+        placeBackRank('white', 0);
+        placePawns('white', 1)
+        
+        //for Black 
+        placePawns('black', 6)
+        placeBackRank('black', 7);
     }
 }

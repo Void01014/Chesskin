@@ -1,1 +1,5 @@
-import Game from "./Game";
+import Game from "./Game.js";
+
+const game = new Game;
+
+game.board.render();
