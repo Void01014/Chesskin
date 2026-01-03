@@ -3,5 +3,7 @@ export default class Piece{
         this.color = color;
     }
 
-    getMoves(board, position){}
+    getPotentialMoves(row, col){
+        
+    }
 }

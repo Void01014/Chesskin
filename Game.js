@@ -16,9 +16,9 @@ const gameState = {
     GMAE_OVER: 'GMAE_OVER',
 }
 
-export default class Game{
-    
-    constructor(){
+export default class Game {
+
+    constructor() {
         this.board = new Board();
         this.state = gameState.SELECTING_PIECE;
         this.currentPlayer = 'white';
@@ -26,9 +26,9 @@ export default class Game{
         this.validMovesForSelected = [];
 
         this.initializeBoard();
-    }    
+    }
 
-    initializeBoard(){
+    initializeBoard() {
         const placeBackRank = (color, row) => {
             this.board.setPiece(row, 0, new Rook(color));
             this.board.setPiece(row, 7, new Rook(color));
@@ -41,7 +41,7 @@ export default class Game{
         };
 
         const placePawns = (color, row) => {
-            for (let i = 0; i < 8; i++){
+            for (let i = 0; i < 8; i++) {
                 this.board.setPiece(row, i, new Pawn(color));
             }
         }
@@ -49,7 +49,7 @@ export default class Game{
         //for White
         placeBackRank('white', 7);
         placePawns('white', 6)
-        
+
         //for Black 
         placeBackRank('black', 0);
         placePawns('black', 1)
@@ -57,35 +57,50 @@ export default class Game{
 
     //////////////////////////////////////////////
 
-    handleSquareClick(row, col){
-        if(this.state == gameState.SELECTING_PIECE){
+    handleSquareClick(row, col) {
+        if (this.state == gameState.SELECTING_PIECE) {
             this.handleSelection(row, col);
-        }else if (this.state = gameState.SELECTING_MOVE){
+        } else if (this.state = gameState.SELECTING_MOVE) {
             this.handleMove(row, col);
-        } 
+        }
     }
 
-    handleSelection(row, col){
+    handleSelection(row, col) {
         const piece = this.board.getPiece(row, col);
-        if(piece && piece.color == this.currentPlayer){
-            this.selectedSquare = {row, col};
+        if (piece && piece.color == this.currentPlayer) {
+            this.selectedSquare = { row, col };
             this.state = gameState.SELECTING_MOVE;
             console.log(`Selected ${piece.constructor.name} at ${row},${col}. Now pick a destination.`);
-        }else{
+        } else {
             console.log("Empty square or wrong color!");
         }
     }
 
-    handleMove(row, col){
+    handleMove(row, col) {
         // Here is where you will eventually check if the move is legal
         // For now, let's just move it to show the state swap
 
-        const piece = this.board.getPiece(this.selectedSquare.row, this.selectedSquare.col);
+        const selectedPosition = this.board.getPiece(row, col)
 
-        this.board.setPiece(row, col, piece);
-        this.board.setPiece(this.selectedSquare.row, this.selectedSquare.col, null);
+        if (!selectedPosition) {
+            const piece = this.board.getPiece(this.selectedSquare.row, this.selectedSquare.col);
 
-        console.log(`Moved to ${row},${col}`);
+            this.board.setPiece(row, col, piece);
+            this.board.setPiece(this.selectedSquare.row, this.selectedSquare.col, null);
+            console.log(`Moved to ${row},${col}`);
+        } else {
+            if (selectedPosition.color !== this.currentPlayer) {
+                
+                const piece = this.board.getPiece(this.selectedSquare.row, this.selectedSquare.col);
+    
+                this.board.setPiece(row, col, piece);
+                this.board.setPiece(this.selectedSquare.row, this.selectedSquare.col, null);
+                console.log(`Moved to ${row},${col}`);
+            }else{
+                console.log(`position ${row},${col} is allready taked by ${selectedPosition.constructor.name}`);
+            }
+        }
+
         //cleaning the board
         this.selectedSquare = null;
         this.currentPlayer = this.currentPlayer === 'white' ? 'black' : 'white';
