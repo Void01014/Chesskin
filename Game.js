@@ -79,29 +79,31 @@ export default class Game {
     handleMove(row, col) {
         // Here is where you will eventually check if the move is legal
         // For now, let's just move it to show the state swap
+        const selectedPiece = this.board.getPiece(this.selectedSquare.row, this.selectedSquare.col);
         const selectedPosition = this.board.getPiece(row, col)
         
-        if(this.board.getPiece(this.selectedSquare.row, this.selectedSquare.col).constructor.name == 'knight'){
-            alert()
-        }
+        const moves = selectedPiece.getPotentialMoves(this.selectedSquare.row, this.selectedSquare.col);
+        const isMoveLegal = moves.some(move => move[0] === row && move[1] === col);        
+        // console.log(`Potential moves for ${selectedPiece.constructor.name}:`, moves);
 
-        if (!selectedPosition) {
-            const piece = this.board.getPiece(this.selectedSquare.row, this.selectedSquare.col);
-
-            this.board.setPiece(row, col, piece);
-            this.board.setPiece(this.selectedSquare.row, this.selectedSquare.col, null);
-            console.log(`Moved to ${row},${col}`);
-        } else {
-            if (selectedPosition.color !== this.currentPlayer) {
-                
-                const piece = this.board.getPiece(this.selectedSquare.row, this.selectedSquare.col);
-    
-                this.board.setPiece(row, col, piece);
+        if(isMoveLegal){
+            if (!selectedPosition) {
+                this.board.setPiece(row, col, selectedPiece);
                 this.board.setPiece(this.selectedSquare.row, this.selectedSquare.col, null);
                 console.log(`Moved to ${row},${col}`);
-            }else{
-                console.log(`position ${row},${col} is allready taked by ${selectedPosition.constructor.name}`);
+            } else {
+                if (selectedPosition.color !== this.currentPlayer) {
+                        
+                    this.board.setPiece(row, col, selectedPiece);
+                    this.board.setPiece(this.selectedSquare.row, this.selectedSquare.col, null);
+                    console.log(`Moved to ${row},${col}`);
+                }else{
+                    console.log(`position ${row},${col} is allready taked by ${selectedPosition.constructor.name}`);
+                }
             }
+        }else{
+            console.log("your move is not legal");
+            
         }
 
         //cleaning the board
