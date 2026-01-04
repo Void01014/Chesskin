@@ -79,8 +79,11 @@ export default class Game {
     handleMove(row, col) {
         // Here is where you will eventually check if the move is legal
         // For now, let's just move it to show the state swap
-
         const selectedPosition = this.board.getPiece(row, col)
+        
+        if(this.board.getPiece(this.selectedSquare.row, this.selectedSquare.col).constructor.name == 'knight'){
+            alert()
+        }
 
         if (!selectedPosition) {
             const piece = this.board.getPiece(this.selectedSquare.row, this.selectedSquare.col);
