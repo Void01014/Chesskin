@@ -23,7 +23,16 @@ export default class Pawn extends Piece{
         }
 
         //now to move diagonally
+        const captureCols = [col - 1, col + 1];
 
+        captureCols.forEach(c =>{
+            const targetPiece = board.getPiece(row + dir, c)
+            if (c >= 0 && c < 8) {
+                if(targetPiece && targetPiece.color !== this.color){
+                    potentialMoves.push([row + dir, c])
+                }
+            }
+        });
         return potentialMoves;
     }
 }
