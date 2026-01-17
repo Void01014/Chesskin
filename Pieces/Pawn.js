@@ -16,11 +16,13 @@ export default class Pawn extends Piece{
 
             if (!board.getPiece(targetRow, col)) {
                 potentialMoves.push([targetRow, col]);
-                
+
             } else {
                 break;
             }
         }
+
+        //now to move diagonally
 
         return potentialMoves;
     }

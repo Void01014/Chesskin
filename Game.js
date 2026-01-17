@@ -95,6 +95,9 @@ export default class Game {
 
         this.board.setPiece(row, col, selectedPiece);
         this.board.setPiece(this.selectedSquare.row, this.selectedSquare.col, null);
+        if (selectedPiece.xtraMove !== undefined) {
+            selectedPiece.xtraMove = 0;
+        }
         console.log(`Moved to ${row},${col}`);
 
         this.finalizeTurn();
