@@ -77,39 +77,34 @@ export default class Game {
     }
 
     handleMove(row, col) {
-        // Here is where you will eventually check if the move is legal
-        // For now, let's just move it to show the state swap
         const selectedPiece = this.board.getPiece(this.selectedSquare.row, this.selectedSquare.col);
         const selectedPosition = this.board.getPiece(row, col)
         
-        const moves = selectedPiece.getPotentialMoves(this.selectedSquare.row, this.selectedSquare.col);
+        const moves = selectedPiece.getPotentialMoves(this.selectedSquare.row, this.selectedSquare.col, this.board);
         const isMoveLegal = moves.some(move => move[0] === row && move[1] === col);        
-        // console.log(`Potential moves for ${selectedPiece.constructor.name}:`, moves);
+        console.log(`Potential moves for ${selectedPiece.constructor.name}:`, moves);
 
-        if(isMoveLegal){
-            if (!selectedPosition) {
-                this.board.setPiece(row, col, selectedPiece);
-                this.board.setPiece(this.selectedSquare.row, this.selectedSquare.col, null);
-                console.log(`Moved to ${row},${col}`);
-            } else {
-                if (selectedPosition.color !== this.currentPlayer) {
-                        
-                    this.board.setPiece(row, col, selectedPiece);
-                    this.board.setPiece(this.selectedSquare.row, this.selectedSquare.col, null);
-                    console.log(`Moved to ${row},${col}`);
-                }else{
-                    console.log(`position ${row},${col} is allready taked by ${selectedPosition.constructor.name}`);
-                }
-            }
-        }else{
-            console.log("your move is not legal");
-            
+        if(!isMoveLegal){
+            console.log("Move pattern is not legal!");
+            return
         }
 
-        //cleaning the board
+        if (selectedPosition && selectedPosition.color == this.currentPlayer) {
+            console.log(`position ${row},${col} is allready taked by your ${selectedPosition.constructor.name}`);
+        }
+
+        this.board.setPiece(row, col, selectedPiece);
+        this.board.setPiece(this.selectedSquare.row, this.selectedSquare.col, null);
+        console.log(`Moved to ${row},${col}`);
+
+        this.finalizeTurn();
+    }
+
+    finalizeTurn(){
         this.selectedSquare = null;
         this.currentPlayer = this.currentPlayer === 'white' ? 'black' : 'white';
         this.state = gameState.SELECTING_PIECE;
         this.validMovesForSelected = [];
     }
+
 }

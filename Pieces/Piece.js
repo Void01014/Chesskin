@@ -3,7 +3,8 @@ export default class Piece{
         this.color = color;
     }
 
-    getPotentialMoves(row, col){
-        
+    getPotentialMoves(row, col, board){
+        console.warn(`getPotentialMoves not implemented for ${this.constructor.name}`);
+        return [];
     }
 }
