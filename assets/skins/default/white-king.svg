@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="470" height="470" viewBox="0 0 470 470">
+    <g id="Layer_1">
+        <path d="M130,150 Q235,-100 340,150 L170,150 Z" 
+              fill="#fff" stroke="#000" stroke-width="30" stroke-linejoin="round"/>
+        <path d="M120,190 
+                 C0,0 250,30 235,190 
+                 C225,30 470,0 350,190 
+                 L120,190 Z" 
+              fill="#fff" stroke="#000" stroke-width="30" stroke-linejoin="round"/>
+        
+        
+        <rect stroke-width="30" stroke="#000" height="45.71422" width="343.80899" y="409.07027" x="68.71327" fill="#fff"/>
+        <rect stroke="#000" stroke-width="30" height="39.80653" width="270" y="189.9335" x="100" fill="#fff"/>
+        <path d="M143,232 L105,406 L384,406 L341,232 L143,232" stroke="#000" stroke-width="30" fill="#fff"/>
+    </g>
+</svg>

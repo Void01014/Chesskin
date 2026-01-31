@@ -5,7 +5,6 @@ import Rook from "./Pieces/Rook.js";
 import Knight from "./Pieces/Knight.js";
 import Bishop from "./Pieces/Bishop.js";
 import Pawn from "./Pieces/Pawn.js";
-import Piece from "./Pieces/Piece.js";
 
 // Turn Manager
 const gameState = {
@@ -19,7 +18,7 @@ const gameState = {
 export default class Game {
 
     constructor() {
-        this.board = new Board();
+        this.board = new Board(this);
         this.state = gameState.SELECTING_PIECE;
         this.currentPlayer = 'white';
         this.selectedSquare = null;
@@ -70,6 +69,11 @@ export default class Game {
         if (piece && piece.color == this.currentPlayer) {
             this.selectedSquare = { row, col };
             this.state = gameState.SELECTING_MOVE;
+            const selectedPiece = this.board.getPiece(this.selectedSquare.row, this.selectedSquare.col);
+
+            this.validMovesForSelected = selectedPiece.getPotentialMoves(this.selectedSquare.row, this.selectedSquare.col, this.board);
+
+            this.board.RenderMoves(this.validMovesForSelected)
             console.log(`Selected ${piece.constructor.name} at ${row},${col}. Now pick a destination.`);
         } else {
             console.log("Empty square or wrong color!");
@@ -77,20 +81,23 @@ export default class Game {
     }
 
     handleMove(row, col) {
-        const selectedPiece = this.board.getPiece(this.selectedSquare.row, this.selectedSquare.col);
         const selectedPosition = this.board.getPiece(row, col)
-        
-        const moves = selectedPiece.getPotentialMoves(this.selectedSquare.row, this.selectedSquare.col, this.board);
-        const isMoveLegal = moves.some(move => move[0] === row && move[1] === col);        
-        console.log(`Potential moves for ${selectedPiece.constructor.name}:`, moves);
+        const selectedPiece = this.board.getPiece(this.selectedSquare.row, this.selectedSquare.col);
 
-        if(!isMoveLegal){
-            console.log("Move pattern is not legal!");
+        console.log('moves' + this.validMovesForSelected);
+
+        const isMoveLegal = this.validMovesForSelected.some(move => move[0] === row && move[1] === col);
+        console.log(`Potential moves for ${selectedPiece.constructor.name}:`, this.validMovesForSelected);
+
+        if (!isMoveLegal) {
+            console.log("Move pattern is not legal!, please try again");
+            this.finalizeTurn(true);
             return
         }
 
         if (selectedPosition && selectedPosition.color == this.currentPlayer) {
-            console.log(`position ${row},${col} is allready taked by your ${selectedPosition.constructor.name}`);
+            console.log(`position ${row},${col} is already taked by your ${selectedPosition.constructor.name}`);
+            this.finalizeTurn(true);
         }
 
         this.board.setPiece(row, col, selectedPiece);
@@ -100,14 +107,17 @@ export default class Game {
         }
         console.log(`Moved to ${row},${col}`);
 
-        this.finalizeTurn();
+        this.finalizeTurn(false);
     }
 
-    finalizeTurn(){
+    finalizeTurn(retry) {
         this.selectedSquare = null;
-        this.currentPlayer = this.currentPlayer === 'white' ? 'black' : 'white';
+        if (!retry) {
+            this.currentPlayer = this.currentPlayer === 'white' ? 'black' : 'white';
+        }
         this.state = gameState.SELECTING_PIECE;
         this.validMovesForSelected = [];
+        this.board.RenderMoves([]);
     }
 
 }

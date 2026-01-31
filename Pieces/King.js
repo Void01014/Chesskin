@@ -18,7 +18,7 @@ export default class King extends Piece{
             let newRow = row + dr; 
             let newCol = col + dc; 
             
-            if(newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8){
+            if(newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8 && board.getPiece(newCol, newCol)){
                 potentialMoves.push([newRow, newCol]);
             }
         });
