@@ -6,6 +6,8 @@ const board = document.getElementById("board");
 
 game.board.fillBoard();
 game.board.Render();
+game.getEnemyPotentialMoves();
+
 // game.board.renderConsole();
 // game.handleSquareClick(6, 2);
 // game.handleSquareClick(4, 2);

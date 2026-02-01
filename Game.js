@@ -23,6 +23,12 @@ export default class Game {
         this.currentPlayer = 'white';
         this.selectedSquare = null;
         this.validMovesForSelected = [];
+        this.PotentialCheckMoves = [];
+        this.kingPositions = {
+            white: { r: null, c: null },
+            black: { r: null, c: null }
+        };
+        this.is_check = false;
 
         this.initializeBoard();
     }
@@ -47,19 +53,30 @@ export default class Game {
 
         //for White
         placeBackRank('white', 7);
-        placePawns('white', 6)
+        placePawns('white', 6);
 
         //for Black 
         placeBackRank('black', 0);
-        placePawns('black', 1)
+        placePawns('black', 1);
     }
 
     //////////////////////////////////////////////
 
     handleSquareClick(row, col) {
+        this.getPotentialCheckMoves();
+        this.kingPositions.white = this.getKingPosition('white');
+        this.kingPositions.black = this.getKingPosition('black');
+                
+        if(this.is_check){
+            alert("it's a check!!!");
+        }else{
+            console.log('no checks')
+        }
+
+
         if (this.state == gameState.SELECTING_PIECE) {
             this.handleSelection(row, col);
-        } else if (this.state = gameState.SELECTING_MOVE) {
+        } else if (this.state == gameState.SELECTING_MOVE) {
             this.handleMove(row, col);
         }
     }
@@ -84,8 +101,6 @@ export default class Game {
         const selectedPosition = this.board.getPiece(row, col)
         const selectedPiece = this.board.getPiece(this.selectedSquare.row, this.selectedSquare.col);
 
-        console.log('moves' + this.validMovesForSelected);
-
         const isMoveLegal = this.validMovesForSelected.some(move => move[0] === row && move[1] === col);
         console.log(`Potential moves for ${selectedPiece.constructor.name}:`, this.validMovesForSelected);
 
@@ -107,7 +122,42 @@ export default class Game {
         }
         console.log(`Moved to ${row},${col}`);
 
+        this.is_check = this.PotentialCheckMoves.some(move => move[0] === this.kingPositions[this.currentPlayer][0] 
+        && move[1] === this.kingPositions[this.currentPlayer][1])
+        
         this.finalizeTurn(false);
+    }
+
+    getKingPosition(color) {
+        let kingPosition = [];
+
+        this.board.grid.forEach((row, r) => {
+            row.forEach((position, c) => {
+                if (position && position.constructor.name === 'King' && position.color == color) {
+                    kingPosition = [r, c];
+                }
+            });
+        });
+        return kingPosition;
+    }
+
+    getPotentialCheckMoves() {
+        const allSquares = document.querySelectorAll('.square');
+        let squareIndex = 0;
+
+        this.board.grid.forEach(row => {
+            row.forEach(position => {
+                const square = allSquares[squareIndex];
+                if (position && position.color !== this.currentPlayer) {                                        
+                    const row = Number(square.dataset.row);
+                    const col = Number(square.dataset.col);
+
+                    const piece = this.board.getPiece(row, col);
+                    this.PotentialCheckMoves.push(...piece.getPotentialMoves(row, col, this.board))
+                }
+                squareIndex++;
+            });
+        });
     }
 
     finalizeTurn(retry) {
@@ -118,6 +168,11 @@ export default class Game {
         this.state = gameState.SELECTING_PIECE;
         this.validMovesForSelected = [];
         this.board.RenderMoves([]);
+        this.PotentialCheckMoves = [];
+        this.kingPositions = {
+            white: { r: null, c: null },
+            black: { r: null, c: null }
+        };
     }
 
 }

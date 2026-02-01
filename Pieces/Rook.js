@@ -14,10 +14,10 @@ export default class Rook extends Piece{
         directions.forEach(([dr, dc]) => {
             let newRow = row + dr;
             let newCol = col + dc;
-
+            
             while (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8){
                 const pieceAtSquare = board.getPiece(newRow, newCol);
-                
+
                 if(!pieceAtSquare){
                     potentialMoves.push([newRow, newCol]);
                 }else{

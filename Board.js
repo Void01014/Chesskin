@@ -24,7 +24,6 @@ export default class Board {
     }
 
     Render() {
-        // Get ALL squares as an array
         const allSquares = document.querySelectorAll('.square');
         let squareIndex = 0;
 
@@ -50,8 +49,6 @@ export default class Board {
     }
 
     RenderMoves(moves) {
-        console.log(moves);
-
         // 1. Clear previous highlights first! 
         // Otherwise, old moves stay blue forever.
 
@@ -59,17 +56,14 @@ export default class Board {
 
         if (moves.length !== 0) {
             moves.forEach(move => {
-                const [r, c] = move; // Assuming move is [row, col]
+                const [r, c] = move;
 
-                // 2. Use a CSS Attribute Selector to find the exact square
                 const square = document.querySelector(`.square[data-row="${r}"][data-col="${c}"]`);
 
                 if (square) {
-                    // 3. Add a CSS class to style it (e.g., a small dot or a border)
                     square.classList.add('highlight');
                 }
             });
-            console.log('rendered!!!')
         }
     }
 
