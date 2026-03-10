@@ -6,7 +6,6 @@ import Knight from "./Pieces/Knight.js";
 import Bishop from "./Pieces/Bishop.js";
 import Pawn from "./Pieces/Pawn.js";
 
-// Turn Manager
 const gameState = {
     IDLE: 'IDLE',
     SELECTING_PIECE: 'SELECTING_PIECE',
@@ -63,16 +62,9 @@ export default class Game {
     //////////////////////////////////////////////
 
     handleSquareClick(row, col) {
-        this.getPotentialCheckMoves();
+        // this.getPotentialCheckMoves();
         this.kingPositions.white = this.getKingPosition('white');
         this.kingPositions.black = this.getKingPosition('black');
-                
-        if(this.is_check){
-            alert("it's a check!!!");
-        }else{
-            console.log('no checks')
-        }
-
 
         if (this.state == gameState.SELECTING_PIECE) {
             this.handleSelection(row, col);
@@ -98,6 +90,13 @@ export default class Game {
     }
 
     handleMove(row, col) {
+        if (this.is_check) {
+            alert("it's a check!!!");
+            return;
+        } else {
+            console.log('no checks')
+        }
+
         const selectedPosition = this.board.getPiece(row, col)
         const selectedPiece = this.board.getPiece(this.selectedSquare.row, this.selectedSquare.col);
 
@@ -122,11 +121,24 @@ export default class Game {
         }
         console.log(`Moved to ${row},${col}`);
 
-        this.is_check = this.PotentialCheckMoves.some(move => move[0] === this.kingPositions[this.currentPlayer][0] 
-        && move[1] === this.kingPositions[this.currentPlayer][1])
+        const opponentColor = this.currentPlayer === 'white' ? 'black' : 'white';
+        const enemyKing = this.kingPositions[opponentColor];
         
+        this.getPotentialCheckMoves();
+
+        this.is_check = this.PotentialCheckMoves.some(move => move[0] === enemyKing[0]
+            && move[1] === enemyKing[1])
+
+        if (this.is_check) {
+            alert("it's a check!!!");
+        } else {
+            console.log('no checks')
+        }
+
         this.finalizeTurn(false);
     }
+
+    ///////////////////////////////////
 
     getKingPosition(color) {
         let kingPosition = [];
@@ -142,23 +154,17 @@ export default class Game {
     }
 
     getPotentialCheckMoves() {
-        const allSquares = document.querySelectorAll('.square');
-        let squareIndex = 0;
-
-        this.board.grid.forEach(row => {
-            row.forEach(position => {
-                const square = allSquares[squareIndex];
-                if (position && position.color !== this.currentPlayer) {                                        
-                    const row = Number(square.dataset.row);
-                    const col = Number(square.dataset.col);
-
-                    const piece = this.board.getPiece(row, col);
-                    this.PotentialCheckMoves.push(...piece.getPotentialMoves(row, col, this.board))
+        this.board.grid.forEach((row, crow) => {
+            row.forEach((position, ccol) => {
+                if (position) {
+                    const piece = this.board.getPiece(crow, ccol);
+                    this.PotentialCheckMoves.push(...piece.getPotentialMoves(crow, ccol, this.board))
                 }
-                squareIndex++;
             });
         });
     }
+
+    ////////////////////////////////////
 
     finalizeTurn(retry) {
         this.selectedSquare = null;
@@ -168,11 +174,7 @@ export default class Game {
         this.state = gameState.SELECTING_PIECE;
         this.validMovesForSelected = [];
         this.board.RenderMoves([]);
-        this.PotentialCheckMoves = [];
-        this.kingPositions = {
-            white: { r: null, c: null },
-            black: { r: null, c: null }
-        };
+        // this.PotentialCheckMoves = [];
     }
 
 }

@@ -12,10 +12,14 @@ export default class Knight extends Piece {
             const [dr, dc] = offsets[i];
             const newRow = row + dr;
             const newCol = col + dc;
-
-            if (newRow < 8 && newRow >= 0 && newCol < 8 && newCol >= 0 && !board.getPiece(newRow, newCol)) {
-                potentialMoves.push([newRow, newCol]);
-                console.log('valid');
+            
+            if (newRow < 8 && newRow >= 0 && newCol < 8 && newCol >= 0) {
+                const piece = board.getPiece(newRow, newCol) ?? null;
+                
+                if((!piece || piece.color !== this.color)){
+                    potentialMoves.push([newRow, newCol]);
+                    console.log('valid');
+                }
             } else {
                 console.log('not valid');
             }

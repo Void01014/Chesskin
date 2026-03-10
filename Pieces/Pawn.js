@@ -5,6 +5,7 @@ export default class Pawn extends Piece {
         super(color);
         this.xtraMove = 1;
     }
+    
     getPotentialMoves(row, col, board) {
         let potentialMoves = [];
         const dir = this.color === 'white' ? -1 : 1;
