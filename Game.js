@@ -90,13 +90,6 @@ export default class Game {
     }
 
     handleMove(row, col) {
-        if (this.is_check) {
-            alert("it's a check!!!");
-            return;
-        } else {
-            console.log('no checks')
-        }
-
         const selectedPosition = this.board.getPiece(row, col)
         const selectedPiece = this.board.getPiece(this.selectedSquare.row, this.selectedSquare.col);
 
@@ -112,6 +105,7 @@ export default class Game {
         if (selectedPosition && selectedPosition.color == this.currentPlayer) {
             console.log(`position ${row},${col} is already taked by your ${selectedPosition.constructor.name}`);
             this.finalizeTurn(true);
+            return;
         }
 
         this.board.setPiece(row, col, selectedPiece);
@@ -123,16 +117,11 @@ export default class Game {
 
         const opponentColor = this.currentPlayer === 'white' ? 'black' : 'white';
         const enemyKing = this.kingPositions[opponentColor];
-        
-        this.getPotentialCheckMoves();
 
-        this.is_check = this.PotentialCheckMoves.some(move => move[0] === enemyKing[0]
-            && move[1] === enemyKing[1])
-
-        if (this.is_check) {
-            alert("it's a check!!!");
-        } else {
-            console.log('no checks')
+        if (this.isCheck(enemyKing)) {
+            alert("it's a check!");
+            const enemyKingelem = document.querySelector(`[data-row='${enemyKing[0]}'][data-col='${enemyKing[1]}']`)
+            enemyKingelem.style.background = 'red';
         }
 
         this.finalizeTurn(false);
@@ -162,6 +151,15 @@ export default class Game {
                 }
             });
         });
+    }
+
+    //////////////////////////////////
+
+    isCheck(enemyKing) {
+        this.getPotentialCheckMoves();
+
+        return this.is_check = this.PotentialCheckMoves.some(move => move[0] === enemyKing[0]
+            && move[1] === enemyKing[1]);
     }
 
     ////////////////////////////////////
