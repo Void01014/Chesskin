@@ -24,10 +24,9 @@ export default class Game {
         this.validMovesForSelected = [];
         this.PotentialCheckMoves = [];
         this.kingPositions = {
-            white: { r: null, c: null },
-            black: { r: null, c: null }
+            white: { r: null, c: null , checked: false},
+            black: { r: null, c: null , checked: false}
         };
-        this.is_check = false;
 
         this.initializeBoard();
     }
@@ -135,7 +134,8 @@ export default class Game {
         this.board.grid.forEach((row, r) => {
             row.forEach((position, c) => {
                 if (position && position.constructor.name === 'King' && position.color == color) {
-                    kingPosition = [r, c];
+                    kingPosition[0] = r;
+                    kingPosition[1] = c;
                 }
             });
         });
@@ -145,7 +145,7 @@ export default class Game {
     getPotentialCheckMoves() {
         this.board.grid.forEach((row, crow) => {
             row.forEach((position, ccol) => {
-                if (position) {
+                if (position && position.color == this.currentPlayer) {
                     const piece = this.board.getPiece(crow, ccol);
                     this.PotentialCheckMoves.push(...piece.getPotentialMoves(crow, ccol, this.board))
                 }
@@ -158,8 +158,12 @@ export default class Game {
     isCheck(enemyKing) {
         this.getPotentialCheckMoves();
 
-        return this.is_check = this.PotentialCheckMoves.some(move => move[0] === enemyKing[0]
+        return this.kingPositions = this.PotentialCheckMoves.some(move => move[0] === enemyKing[0]
             && move[1] === enemyKing[1]);
+    }
+
+    sandboxValidation(){
+        
     }
 
     ////////////////////////////////////
