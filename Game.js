@@ -73,11 +73,14 @@ export default class Game {
 
     handleSelection(row, col) {
         const piece = this.board.getPiece(row, col);
+        const otherColor = this.currentPlayer === 'white' ? 'black' : 'white';
+
         if (piece && piece.color == this.currentPlayer) {
             this.selectedSquare = { row, col };
             this.state = gameState.SELECTING_MOVE;
             const selectedPiece = this.board.getPiece(this.selectedSquare.row, this.selectedSquare.col);
-            this.getPotentialCheckMoves(this.currentPlayer);
+
+            this.getPotentialCheckMoves(otherColor);
             this.validMovesForSelected = selectedPiece.getPotentialMoves(this.selectedSquare.row, this.selectedSquare.col, this.board, this.PotentialCheckMoves);
 
             this.board.RenderMoves(this.validMovesForSelected)
@@ -116,7 +119,7 @@ export default class Game {
                 const kingPos = this.kingPositions[opponentColor];
 
                 // console.log("Check detected on:", opponentColor, kingPos);
-                const enemyKingElem = document.querySelector(`.square[data-row="${kingPos[0]}"][data-col="${kingPos[1]}"]`);
+                const enemyKingElem = document.querySelector(`.square[data-row="${kingPos.r}"][data-col="${kingPos.c}"]`);
 
                 if (enemyKingElem) {
                     enemyKingElem.style.backgroundColor = 'red';
@@ -136,8 +139,8 @@ export default class Game {
         this.board.grid.forEach((row, r) => {
             row.forEach((position, c) => {
                 if (position && position.constructor.name === 'King' && position.color == color) {
-                    kingPosition[0] = r;
-                    kingPosition[1] = c;
+                    kingPosition.r = r;
+                    kingPosition.c = c;
                 }
             });
         });
@@ -145,6 +148,7 @@ export default class Game {
     }
 
     getPotentialCheckMoves(color) {
+        this.PotentialCheckMoves = [];
         this.board.grid.forEach((row, crow) => {
             row.forEach((position, ccol) => {
                 if (position && position.color == color) {
@@ -163,20 +167,20 @@ export default class Game {
 
         this.getPotentialCheckMoves(color);
         return this.PotentialCheckMoves.some(move =>
-            move[0] === this.kingPositions[otherColor][0] &&
-            move[1] === this.kingPositions[otherColor][1]
+            move[0] === this.kingPositions[otherColor].r &&
+            move[1] === this.kingPositions[otherColor].c
         );
     }
 
     sandboxValidation(originalRow, originalCol, desiredRow, desiredCol, piece) {
         const opponentColor = this.currentPlayer === 'white' ? 'black' : 'white';
-
         const originalOccupant = this.board.getPiece(desiredRow, desiredCol);
-
         const isKing = piece.constructor.name === 'King';
+
         if (isKing) {
-            this.kingPositions[this.currentPlayer][0] = desiredRow;
-            this.kingPositions[this.currentPlayer][1] = desiredCol;
+            this.board.setPiece(desiredRow, desiredCol, piece);
+            this.board.setPiece(originalRow, originalCol, null);
+            this.kingPositions[this.currentPlayer] = { r: desiredRow, c: desiredCol };
         } else {
             this.board.setPiece(desiredRow, desiredCol, piece);
             this.board.setPiece(originalRow, originalCol, null);
@@ -184,10 +188,16 @@ export default class Game {
 
         const stillInCheck = this.isCheck(opponentColor);
 
+        this.board.renderConsole()
+        console.log(this.kingPositions);
+        console.log(this.PotentialCheckMoves);
+        
         if (stillInCheck) {
+            alert()
             if (isKing) {
-                this.kingPositions[this.currentPlayer][0] = originalRow;
-                this.kingPositions[this.currentPlayer][1] = originalCol;
+                this.board.setPiece(originalRow, originalCol, piece);
+                this.board.setPiece(desiredRow, desiredCol, originalOccupant);
+                this.kingPositions[this.currentPlayer] = { r: originalRow, c: originalCol };
             } else {
                 this.board.setPiece(originalRow, originalCol, piece);
                 this.board.setPiece(desiredRow, desiredCol, originalOccupant);
@@ -197,6 +207,7 @@ export default class Game {
         }
         return true;
     }
+
     ////////////////////////////////////
 
     finalizeTurn(retry) {
