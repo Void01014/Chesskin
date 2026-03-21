@@ -18,10 +18,7 @@ export default class Knight extends Piece {
                 
                 if((!piece || piece.color !== this.color)){
                     potentialMoves.push([newRow, newCol]);
-                    console.log('valid');
                 }
-            } else {
-                console.log('not valid');
             }
         }
         return potentialMoves;

@@ -24,8 +24,8 @@ export default class Game {
         this.validMovesForSelected = [];
         this.PotentialCheckMoves = [];
         this.kingPositions = {
-            white: { r: null, c: null , checked: false},
-            black: { r: null, c: null , checked: false}
+            white: { r: null, c: null },
+            black: { r: null, c: null }
         };
 
         this.initializeBoard();
@@ -56,15 +56,14 @@ export default class Game {
         //for Black 
         placeBackRank('black', 0);
         placePawns('black', 1);
+
+        this.kingPositions.white = this.getKingPosition('white');
+        this.kingPositions.black = this.getKingPosition('black');
     }
 
     //////////////////////////////////////////////
 
     handleSquareClick(row, col) {
-        // this.getPotentialCheckMoves();
-        this.kingPositions.white = this.getKingPosition('white');
-        this.kingPositions.black = this.getKingPosition('black');
-
         if (this.state == gameState.SELECTING_PIECE) {
             this.handleSelection(row, col);
         } else if (this.state == gameState.SELECTING_MOVE) {
@@ -78,52 +77,55 @@ export default class Game {
             this.selectedSquare = { row, col };
             this.state = gameState.SELECTING_MOVE;
             const selectedPiece = this.board.getPiece(this.selectedSquare.row, this.selectedSquare.col);
-
-            this.validMovesForSelected = selectedPiece.getPotentialMoves(this.selectedSquare.row, this.selectedSquare.col, this.board);
+            this.getPotentialCheckMoves(this.currentPlayer);
+            this.validMovesForSelected = selectedPiece.getPotentialMoves(this.selectedSquare.row, this.selectedSquare.col, this.board, this.PotentialCheckMoves);
 
             this.board.RenderMoves(this.validMovesForSelected)
-            console.log(`Selected ${piece.constructor.name} at ${row},${col}. Now pick a destination.`);
         } else {
-            console.log("Empty square or wrong color!");
+            // console.log("Empty square or wrong color!");
         }
     }
 
     handleMove(row, col) {
+        const opponentColor = this.currentPlayer === 'white' ? 'black' : 'white';
         const selectedPosition = this.board.getPiece(row, col)
         const selectedPiece = this.board.getPiece(this.selectedSquare.row, this.selectedSquare.col);
 
         const isMoveLegal = this.validMovesForSelected.some(move => move[0] === row && move[1] === col);
-        console.log(`Potential moves for ${selectedPiece.constructor.name}:`, this.validMovesForSelected);
+        // console.log(`Potential moves for ${selectedPiece.constructor.name}:`, this.validMovesForSelected);
 
         if (!isMoveLegal) {
-            console.log("Move pattern is not legal!, please try again");
+            // console.log("Move pattern is not legal!, please try again");
             this.finalizeTurn(true);
             return
         }
 
         if (selectedPosition && selectedPosition.color == this.currentPlayer) {
-            console.log(`position ${row},${col} is already taked by your ${selectedPosition.constructor.name}`);
+            // console.log(`position ${row},${col} is already taked by your ${selectedPosition.constructor.name}`);
             this.finalizeTurn(true);
             return;
         }
 
-        this.board.setPiece(row, col, selectedPiece);
-        this.board.setPiece(this.selectedSquare.row, this.selectedSquare.col, null);
-        if (selectedPiece.xtraMove !== undefined) {
-            selectedPiece.xtraMove = 0;
+
+        if (this.sandboxValidation(this.selectedSquare.row, this.selectedSquare.col, row, col, selectedPiece)) {
+            if (selectedPiece.xtraMove !== undefined) {
+                selectedPiece.xtraMove = 0;
+            }
+            // console.log(`Moved to ${row},${col}`);
+            if (this.isCheck(this.currentPlayer)) {
+                const kingPos = this.kingPositions[opponentColor];
+
+                // console.log("Check detected on:", opponentColor, kingPos);
+                const enemyKingElem = document.querySelector(`.square[data-row="${kingPos[0]}"][data-col="${kingPos[1]}"]`);
+
+                if (enemyKingElem) {
+                    enemyKingElem.style.backgroundColor = 'red';
+                }
+            }
+            this.finalizeTurn(false);
+        } else {
+            this.finalizeTurn(true);
         }
-        console.log(`Moved to ${row},${col}`);
-
-        const opponentColor = this.currentPlayer === 'white' ? 'black' : 'white';
-        const enemyKing = this.kingPositions[opponentColor];
-
-        if (this.isCheck(enemyKing)) {
-            alert("it's a check!");
-            const enemyKingelem = document.querySelector(`[data-row='${enemyKing[0]}'][data-col='${enemyKing[1]}']`)
-            enemyKingelem.style.background = 'red';
-        }
-
-        this.finalizeTurn(false);
     }
 
     ///////////////////////////////////
@@ -142,30 +144,59 @@ export default class Game {
         return kingPosition;
     }
 
-    getPotentialCheckMoves() {
+    getPotentialCheckMoves(color) {
         this.board.grid.forEach((row, crow) => {
             row.forEach((position, ccol) => {
-                if (position && position.color == this.currentPlayer) {
+                if (position && position.color == color) {
                     const piece = this.board.getPiece(crow, ccol);
                     this.PotentialCheckMoves.push(...piece.getPotentialMoves(crow, ccol, this.board))
                 }
             });
         });
+        return this.PotentialCheckMoves;
     }
 
     //////////////////////////////////
 
-    isCheck(enemyKing) {
-        this.getPotentialCheckMoves();
+    isCheck(color) {
+        const otherColor = color === 'white' ? 'black' : 'white';
 
-        return this.kingPositions = this.PotentialCheckMoves.some(move => move[0] === enemyKing[0]
-            && move[1] === enemyKing[1]);
+        this.getPotentialCheckMoves(color);
+        return this.PotentialCheckMoves.some(move =>
+            move[0] === this.kingPositions[otherColor][0] &&
+            move[1] === this.kingPositions[otherColor][1]
+        );
     }
 
-    sandboxValidation(){
-        
-    }
+    sandboxValidation(originalRow, originalCol, desiredRow, desiredCol, piece) {
+        const opponentColor = this.currentPlayer === 'white' ? 'black' : 'white';
 
+        const originalOccupant = this.board.getPiece(desiredRow, desiredCol);
+
+        const isKing = piece.constructor.name === 'King';
+        if (isKing) {
+            this.kingPositions[this.currentPlayer][0] = desiredRow;
+            this.kingPositions[this.currentPlayer][1] = desiredCol;
+        } else {
+            this.board.setPiece(desiredRow, desiredCol, piece);
+            this.board.setPiece(originalRow, originalCol, null);
+        }
+
+        const stillInCheck = this.isCheck(opponentColor);
+
+        if (stillInCheck) {
+            if (isKing) {
+                this.kingPositions[this.currentPlayer][0] = originalRow;
+                this.kingPositions[this.currentPlayer][1] = originalCol;
+            } else {
+                this.board.setPiece(originalRow, originalCol, piece);
+                this.board.setPiece(desiredRow, desiredCol, originalOccupant);
+            }
+
+            return false;
+        }
+        return true;
+    }
     ////////////////////////////////////
 
     finalizeTurn(retry) {
@@ -176,7 +207,9 @@ export default class Game {
         this.state = gameState.SELECTING_PIECE;
         this.validMovesForSelected = [];
         this.board.RenderMoves([]);
-        // this.PotentialCheckMoves = [];
+        this.kingPositions.white = this.getKingPosition('white');
+        this.kingPositions.black = this.getKingPosition('black');
+        this.PotentialCheckMoves = [];
     }
 
 }
