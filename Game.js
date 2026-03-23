@@ -27,6 +27,7 @@ export default class Game {
             white: { r: null, c: null },
             black: { r: null, c: null }
         };
+        this.enPassantTarget = null;
 
         this.initializeBoard();
     }
@@ -80,8 +81,10 @@ export default class Game {
             this.state = gameState.SELECTING_MOVE;
             const selectedPiece = this.board.getPiece(this.selectedSquare.row, this.selectedSquare.col);
 
-            this.getPotentialCheckMoves(otherColor);
-            this.validMovesForSelected = selectedPiece.getPotentialMoves(this.selectedSquare.row, this.selectedSquare.col, this.board, this.PotentialCheckMoves);
+            if (selectedPiece.constructor.name === "King") {
+                this.getPotentialCheckMoves(otherColor);
+            }
+            this.validMovesForSelected = selectedPiece.getPotentialMoves(this.selectedSquare.row, this.selectedSquare.col, this.board, this.PotentialCheckMoves, true, this.enPassantTarget);
 
             this.board.RenderMoves(this.validMovesForSelected)
         } else {
@@ -113,6 +116,7 @@ export default class Game {
         if (this.sandboxValidation(this.selectedSquare.row, this.selectedSquare.col, row, col, selectedPiece)) {
             if (selectedPiece.xtraMove !== undefined) {
                 selectedPiece.xtraMove = 0;
+                this.enPassantTarget = [row, col]
             }
             // console.log(`Moved to ${row},${col}`);
             if (this.isCheck(this.currentPlayer)) {
@@ -124,6 +128,15 @@ export default class Game {
                 if (enemyKingElem) {
                     enemyKingElem.style.backgroundColor = 'red';
                 }
+                // this.getPotentialCheckMoves(this.currentPlayer);
+                // const otherKing = this.board.getPiece(kingPos.r, kingPos.c);
+                // const kingMoves = otherKing.getPotentialMoves(kingPos.r, kingPos.c, this.board, this.PotentialCheckMoves, true)
+                // console.log('king moves:');
+
+                // console.log(kingMoves)
+                // if (kingMoves.empty){
+                //     alert('checkmate')
+                // }
             }
             this.finalizeTurn(false);
         } else {
@@ -153,7 +166,7 @@ export default class Game {
             row.forEach((position, ccol) => {
                 if (position && position.color == color) {
                     const piece = this.board.getPiece(crow, ccol);
-                    this.PotentialCheckMoves.push(...piece.getPotentialMoves(crow, ccol, this.board))
+                    this.PotentialCheckMoves.push(...piece.getPotentialMoves(crow, ccol, this.board, [], false))
                 }
             });
         });
@@ -188,10 +201,6 @@ export default class Game {
 
         const stillInCheck = this.isCheck(opponentColor);
 
-        this.board.renderConsole()
-        console.log(this.kingPositions);
-        console.log(this.PotentialCheckMoves);
-        
         if (stillInCheck) {
             alert()
             if (isKing) {
@@ -221,6 +230,7 @@ export default class Game {
         this.kingPositions.white = this.getKingPosition('white');
         this.kingPositions.black = this.getKingPosition('black');
         this.PotentialCheckMoves = [];
+        // this.enPassantTarget = null;
     }
 
 }
