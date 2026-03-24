@@ -28,6 +28,10 @@ export default class Game {
             black: { r: null, c: null }
         };
         this.enPassantTarget = null;
+        this.castling = {
+            white: ['K', 'Q'],
+            black: ['k', 'q']
+        }
 
         this.initializeBoard();
     }
@@ -114,10 +118,37 @@ export default class Game {
 
 
         if (this.sandboxValidation(this.selectedSquare.row, this.selectedSquare.col, row, col, selectedPiece)) {
+            //Logic for En Passant
+            if (selectedPiece.constructor.name === 'Pawn') {
+                if (this.enPassantTarget) {
+                    const enPassantRow = this.enPassantTarget[0];
+                    const enPassantCol = this.enPassantTarget[1];
+
+                    if ((enPassantRow === row + 1 || enPassantRow === row - 1) && enPassantCol === col) {
+                        this.board.setPiece(enPassantRow, enPassantCol, null)
+                    }
+                }
+
+                const diff = Math.abs(this.selectedSquare.row - row);
+                if (diff > 1) {
+                    this.enPassantTarget = [row, col];
+                } else {
+                    this.enPassantTarget = null;
+                }
+            }
             if (selectedPiece.xtraMove !== undefined) {
                 selectedPiece.xtraMove = 0;
-                this.enPassantTarget = [row, col]
             }
+
+            //Logic for castling
+            if (selectedPiece.constructor.name === 'King') {
+                this.castling[selectedPiece.color] = []
+            } else if (selectedPiece.constructor.name === 'King') {
+                this.castling[selectedPiece.color] = []
+            }
+
+            ///////////////////////////
+
             // console.log(`Moved to ${row},${col}`);
             if (this.isCheck(this.currentPlayer)) {
                 const kingPos = this.kingPositions[opponentColor];
@@ -172,6 +203,27 @@ export default class Game {
         });
         return this.PotentialCheckMoves;
     }
+
+    // generateFEN(grid) {
+    //     let FEN = "";
+    //     let emptyCount = 0;
+
+    //     grid.forEach((row, i) => {
+    //         row.forEach((square, j) => {
+    //             if(!square){
+    //                 emptyCount++;
+    //             }else{
+    //                 if(emptyCount > 0){
+    //                     FEN.push(`${emptyCount}`);
+    //                 }else{
+    //                     FEN.push(square.constructor.name[0].toLowerCase());
+    //                 }
+    //             }
+    //         })
+    //         emptyCount = 0;
+    //         FEN.push('/');
+    //     })
+    // }
 
     //////////////////////////////////
 
@@ -230,7 +282,6 @@ export default class Game {
         this.kingPositions.white = this.getKingPosition('white');
         this.kingPositions.black = this.getKingPosition('black');
         this.PotentialCheckMoves = [];
-        // this.enPassantTarget = null;
     }
 
 }

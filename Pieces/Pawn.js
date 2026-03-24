@@ -34,19 +34,17 @@ export default class Pawn extends Piece {
             const targetPiece = board.getPiece(row + dir, c)
             if (c >= 0 && c < 8) {
                 if (!withVertical) {
-                    if (!targetPiece) {
-                        potentialMoves.push([row + dir, c])
-                    }
+                    potentialMoves.push([row + dir, c]);
                 } else {
                     if (targetPiece && targetPiece.color !== this.color) {
-                        potentialMoves.push([row + dir, c])
+                        potentialMoves.push([row + dir, c]);
                     }
                 }
             }
         });
 
-        if(enPassantTarget && (enPassantTarget[0] === row && enPassantTarget[1] === col)){
-            potentialMoves.push([row + dir, enPassantTarget[1] + dir])
+        if (enPassantTarget && enPassantTarget[0] === row && (enPassantTarget[1] === col + 1 || enPassantTarget[1] === col - 1)) {
+            potentialMoves.push([row + dir, enPassantTarget[1]])
         }
 
         return potentialMoves;
