@@ -10,7 +10,7 @@ export default class Pawn extends Piece {
     //this way i won't need to change anything inside the Game class, it will  be automatic, other
     //classes will receive additional params but that won't effect anything
 
-    getPotentialMoves(row, col, board, array, withVertical, enPassantTarget) {
+    getPotentialMoves(row, col, board, withVertical, enPassantTarget) {
         let potentialMoves = [];
         const dir = this.color === 'white' ? -1 : 1;
 
@@ -31,13 +31,18 @@ export default class Pawn extends Piece {
         const captureCols = [col - 1, col + 1];
 
         captureCols.forEach(c => {
-            const targetPiece = board.getPiece(row + dir, c)
-            if (c >= 0 && c < 8) {
-                if (!withVertical) {
-                    potentialMoves.push([row + dir, c]);
-                } else {
-                    if (targetPiece && targetPiece.color !== this.color) {
+            const targetRow = row + dir;
+
+            if (targetRow >= 0 && targetRow < 8) {
+                const targetPiece = board.getPiece(targetRow, c);
+                
+                if (c >= 0 && c < 8) {
+                    if (!withVertical) {
                         potentialMoves.push([row + dir, c]);
+                    } else {
+                        if (targetPiece && targetPiece.color !== this.color) {
+                            potentialMoves.push([row + dir, c]);
+                        }
                     }
                 }
             }

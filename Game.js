@@ -29,8 +29,8 @@ export default class Game {
         };
         this.enPassantTarget = null;
         this.castling = {
-            white: ['K', 'Q'],
-            black: ['k', 'q']
+            white: ['Q', 'K'],
+            black: ['q', 'k']
         }
 
         this.initializeBoard();
@@ -88,7 +88,12 @@ export default class Game {
             if (selectedPiece.constructor.name === "King") {
                 this.getPotentialCheckMoves(otherColor);
             }
-            this.validMovesForSelected = selectedPiece.getPotentialMoves(this.selectedSquare.row, this.selectedSquare.col, this.board, this.PotentialCheckMoves, true, this.enPassantTarget);
+
+            if(selectedPiece.constructor.name === "King"){
+                this.validMovesForSelected = selectedPiece.getPotentialMoves(this.selectedSquare.row, this.selectedSquare.col, this.board, this.PotentialCheckMoves);
+            }else{
+                this.validMovesForSelected = selectedPiece.getPotentialMoves(this.selectedSquare.row, this.selectedSquare.col, this.board, true, this.enPassantTarget);
+            }
 
             this.board.RenderMoves(this.validMovesForSelected)
         } else {
@@ -143,8 +148,17 @@ export default class Game {
             //Logic for castling
             if (selectedPiece.constructor.name === 'King') {
                 this.castling[selectedPiece.color] = []
-            } else if (selectedPiece.constructor.name === 'King') {
-                this.castling[selectedPiece.color] = []
+            } else if (selectedPiece.constructor.name === 'Rook') {
+                const kingCol = this.kingPositions[selectedPiece.color][1]; // Get the COL index
+                const rookCol = this.selectedSquare.col;
+
+                if (rookCol < kingCol) {
+                    const targetColor = selectedPiece.color === 'white' ? 'Q' : 'q'; 
+                    this.castling[selectedPiece.color] = this.castling[selectedPiece.color].filter(color => color != targetColor);
+                } else {
+                    const targetColor = selectedPiece.color === 'white' ? 'K' : 'k'; 
+                    this.castling[selectedPiece.color] = this.castling[selectedPiece.color].filter(color => color != targetColor);
+                }
             }
 
             ///////////////////////////
