@@ -1,7 +1,8 @@
 import Piece from "./Piece.js"
 
 export default class Knight extends Piece {
-    getPotentialMoves(row, col, board) {
+    getPotentialMoves(moveContext) {
+        const { row, col, board} = moveContext;
         const offsets = [
             [2, 1], [2, -1], [-2, 1], [-2, -1],
             [1, 2], [1, -2], [-1, 2], [-1, -2]

@@ -89,11 +89,17 @@ export default class Game {
                 this.getPotentialCheckMoves(otherColor);
             }
 
-            if(selectedPiece.constructor.name === "King"){
-                this.validMovesForSelected = selectedPiece.getPotentialMoves(this.selectedSquare.row, this.selectedSquare.col, this.board, this.PotentialCheckMoves);
-            }else{
-                this.validMovesForSelected = selectedPiece.getPotentialMoves(this.selectedSquare.row, this.selectedSquare.col, this.board, true, this.enPassantTarget);
+            const moveContext = {
+                board: this.board,
+                row: this.selectedSquare.row ?? null,
+                col: this.selectedSquare.col ?? null,
+                withVertical: true,
+                PotentialCheckMoves: this.PotentialCheckMoves,   /////special for the king
+                enPassantTarget: this.enPassantTarget,           /////special for the pawn
+                castling: this.castling                          /////special for King/Rook
             }
+
+            this.validMovesForSelected = selectedPiece.getPotentialMoves(moveContext);
 
             this.board.RenderMoves(this.validMovesForSelected)
         } else {
@@ -153,10 +159,10 @@ export default class Game {
                 const rookCol = this.selectedSquare.col;
 
                 if (rookCol < kingCol) {
-                    const targetColor = selectedPiece.color === 'white' ? 'Q' : 'q'; 
+                    const targetColor = selectedPiece.color === 'white' ? 'Q' : 'q';
                     this.castling[selectedPiece.color] = this.castling[selectedPiece.color].filter(color => color != targetColor);
                 } else {
-                    const targetColor = selectedPiece.color === 'white' ? 'K' : 'k'; 
+                    const targetColor = selectedPiece.color === 'white' ? 'K' : 'k';
                     this.castling[selectedPiece.color] = this.castling[selectedPiece.color].filter(color => color != targetColor);
                 }
             }
@@ -211,7 +217,16 @@ export default class Game {
             row.forEach((position, ccol) => {
                 if (position && position.color == color) {
                     const piece = this.board.getPiece(crow, ccol);
-                    this.PotentialCheckMoves.push(...piece.getPotentialMoves(crow, ccol, this.board, [], false))
+                    const moveContext = {
+                        board: this.board,
+                        row: crow,
+                        col: ccol,
+                        withVertical: false,
+                        PotentialCheckMoves: [],                         /////special for the king
+                        enPassantTarget: this.enPassantTarget,           /////special for the pawn
+                        castling: this.castling                          /////special for King/Rook
+                    }
+                    this.PotentialCheckMoves.push(...piece.getPotentialMoves(moveContext))
                 }
             });
         });

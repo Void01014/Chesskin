@@ -1,7 +1,8 @@
 import Piece from "./Piece.js"
 
-export default class Queen extends Piece{
-    getPotentialMoves(row, col, board){
+export default class Queen extends Piece {
+    getPotentialMoves(moveContext) {
+        const { row, col, board } = moveContext;
         let potentialMoves = [];
         const directions = [
             [0, -1],
@@ -14,17 +15,17 @@ export default class Queen extends Piece{
             [1, -1]
         ];
 
-        directions.forEach(([dr, dc]) =>{
-            let newRow = row + dr; 
-            let newCol = col + dc; 
+        directions.forEach(([dr, dc]) => {
+            let newRow = row + dr;
+            let newCol = col + dc;
 
-            while(newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8){
+            while (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
                 const pieceAtLocation = board.getPiece(newRow, newCol);
 
-                if(!pieceAtLocation){
+                if (!pieceAtLocation) {
                     potentialMoves.push([newRow, newCol]);
-                }else{
-                    if(pieceAtLocation.color !== this.color){
+                } else {
+                    if (pieceAtLocation.color !== this.color) {
                         potentialMoves.push([newRow, newCol]);
                     }
                     break;
@@ -34,7 +35,7 @@ export default class Queen extends Piece{
                 newCol += dc;
             }
         });
-        
+
         return potentialMoves;
     }
 }

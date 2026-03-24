@@ -2,7 +2,8 @@ import Piece from "./Piece.js"
 
 
 export default class Rook extends Piece {
-    getPotentialMoves(row, col, board) {
+    getPotentialMoves(moveContext) {
+        const { row, col, board} = moveContext;
         const potentialMoves = [];
         const directions = [
             [0, -1],

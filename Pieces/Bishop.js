@@ -1,7 +1,8 @@
 import Piece from "./Piece.js"
 
-export default class Bishop extends Piece{
-    getPotentialMoves(row, col, board){
+export default class Bishop extends Piece {
+    getPotentialMoves(moveContext) {
+        const { row, col, board } = moveContext;
         let potentialMoves = [];
         const directions = [
             [-1, -1],
@@ -14,13 +15,13 @@ export default class Bishop extends Piece{
             let newRow = row + dr;
             let newCol = col + dc;
 
-            while(newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8){
+            while (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
                 const pieceAtLocation = board.getPiece(newRow, newCol);
 
-                if(!pieceAtLocation){
+                if (!pieceAtLocation) {
                     potentialMoves.push([newRow, newCol]);
-                }else{
-                    if(pieceAtLocation.color !== this.color){
+                } else {
+                    if (pieceAtLocation.color !== this.color) {
                         potentialMoves.push([newRow, newCol]);
                     }
                     break;

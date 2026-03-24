@@ -1,7 +1,8 @@
 import Piece from "./Piece.js"
 
 export default class King extends Piece {
-    getPotentialMoves(row, col, board, PotentialCheckMoves) {
+    getPotentialMoves(moveContext) {
+        const { row, col, board, PotentialCheckMoves } = moveContext;
         let potentialMoves = [];
         const directions = [
             [0, -1],
