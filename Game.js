@@ -186,11 +186,6 @@ export default class Game {
 
                 this.getPotentialCheckMoves(this.currentPlayer)
                 const otherKing = this.board.getPiece(kingPos.r, kingPos.c);
-                console.log(this.currentPlayer);
-                console.log(kingPos.r);
-                console.log(kingPos.c);
-                console.log(this.PotentialCheckMoves);
-
                 const moveContext = {
                     board: this.board,
                     row: kingPos.r,
@@ -207,18 +202,21 @@ export default class Game {
 
                 if (kingMoves.length === 0) {
                     const routes = this.getAttackingRoutes(kingPos.r, kingPos.c, opponentColor)
-                    const potentialBlockMoves = this.getPotentialCheckMoves(opponentColor);
+                    const potentialBlockMoves = this.getPotentialCheckMoves(opponentColor, this.PotentialCheckMoves);
 
-                    console.log('');
                     console.log('routes:');
                     console.log(routes);
+                    console.log('blocks:');
+                    console.log(potentialBlockMoves);
+                    
+
 
                     if (routes.length === 1) {
                         const canBlockOrCapture = potentialBlockMoves.some(([r, c]) =>
                             routes[0].some(([rr, rc]) => rr === r && rc === c));
-                        // alert()
-
-                        if (!canBlockOrCapture) {
+                        
+                        alert(canBlockOrCapture)
+                        if (canBlockOrCapture == false) {
                             alert('simple checkmate');
                         }
                     } else {
