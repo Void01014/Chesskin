@@ -87,6 +87,7 @@ export default class Game {
 
             if (selectedPiece.constructor.name === "King") {
                 this.getPotentialCheckMoves(otherColor);
+                this.getPotentialCheckMoves(otherColor, this.PotentialCheckMoves);
             }
 
             const moveContext = {
@@ -134,8 +135,9 @@ export default class Game {
                 if (this.enPassantTarget) {
                     const enPassantRow = this.enPassantTarget[0];
                     const enPassantCol = this.enPassantTarget[1];
+                    const dir = selectedPiece.color === 'white' ? 1 : -1;
 
-                    if ((enPassantRow === row + 1 || enPassantRow === row - 1) && enPassantCol === col) {
+                    if (enPassantRow === row + dir && enPassantCol === col) {
                         this.board.setPiece(enPassantRow, enPassantCol, null)
                     }
                 }
@@ -171,6 +173,8 @@ export default class Game {
 
             // console.log(`Moved to ${row},${col}`);
             if (this.isCheck(this.currentPlayer)) {
+                console.log('///////////////////////');
+
                 const kingPos = this.kingPositions[opponentColor];
 
                 // console.log("Check detected on:", opponentColor, kingPos);
@@ -179,15 +183,48 @@ export default class Game {
                 if (enemyKingElem) {
                     enemyKingElem.style.backgroundColor = 'red';
                 }
-                // this.getPotentialCheckMoves(this.currentPlayer);
-                // const otherKing = this.board.getPiece(kingPos.r, kingPos.c);
-                // const kingMoves = otherKing.getPotentialMoves(kingPos.r, kingPos.c, this.board, this.PotentialCheckMoves, true)
-                // console.log('king moves:');
 
-                // console.log(kingMoves)
-                // if (kingMoves.empty){
-                //     alert('checkmate')
-                // }
+                this.getPotentialCheckMoves(this.currentPlayer)
+                const otherKing = this.board.getPiece(kingPos.r, kingPos.c);
+                console.log(this.currentPlayer);
+                console.log(kingPos.r);
+                console.log(kingPos.c);
+                console.log(this.PotentialCheckMoves);
+
+                const moveContext = {
+                    board: this.board,
+                    row: kingPos.r,
+                    col: kingPos.c,
+                    withVertical: true,
+                    PotentialCheckMoves: this.PotentialCheckMoves,   /////special for the king
+                    enPassantTarget: this.enPassantTarget,           /////special for the pawn
+                    castling: this.castling                          /////special for King/Rook
+                }
+
+                const kingMoves = otherKing.getPotentialMoves(moveContext)
+                console.log('king moves:');
+                console.log(kingMoves)
+
+                if (kingMoves.length === 0) {
+                    const routes = this.getAttackingRoutes(kingPos.r, kingPos.c, opponentColor)
+                    const potentialBlockMoves = this.getPotentialCheckMoves(opponentColor);
+
+                    console.log('');
+                    console.log('routes:');
+                    console.log(routes);
+
+                    if (routes.length === 1) {
+                        const canBlockOrCapture = potentialBlockMoves.some(([r, c]) =>
+                            routes[0].some(([rr, rc]) => rr === r && rc === c));
+                        // alert()
+
+                        if (!canBlockOrCapture) {
+                            alert('simple checkmate');
+                        }
+                    } else {
+                        alert('checkmate');
+                    }
+                }
             }
             this.finalizeTurn(false);
         } else {
@@ -211,7 +248,7 @@ export default class Game {
         return kingPosition;
     }
 
-    getPotentialCheckMoves(color) {
+    getPotentialCheckMoves(color, PotentialCheckMoves = []) {
         this.PotentialCheckMoves = [];
         this.board.grid.forEach((row, crow) => {
             row.forEach((position, ccol) => {
@@ -222,7 +259,7 @@ export default class Game {
                         row: crow,
                         col: ccol,
                         withVertical: false,
-                        PotentialCheckMoves: [],                         /////special for the king
+                        PotentialCheckMoves: PotentialCheckMoves,        /////special for the king
                         enPassantTarget: this.enPassantTarget,           /////special for the pawn
                         castling: this.castling                          /////special for King/Rook
                     }
@@ -231,6 +268,56 @@ export default class Game {
             });
         });
         return this.PotentialCheckMoves;
+    }
+
+    getAttackingRoutes(kingRow, kingCol, kingColor) {
+        let routes = [];
+        const directions = [
+            [0, -1],
+            [-1, 0],
+            [0, 1],
+            [1, 0],
+            [-1, -1],
+            [-1, 1],
+            [1, 1],
+            [1, -1]
+        ];
+
+        directions.forEach(([dr, dc], index) => {
+            let newRow = kingRow + dr;
+            let newCol = kingCol + dc;
+            let route = [];
+
+            while (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
+                const pieceAtLocation = this.board.getPiece(newRow, newCol);
+
+                if (!pieceAtLocation) {
+                    route.push([newRow, newCol]);
+                } else {
+                    const piece_name = pieceAtLocation.constructor.name;
+
+                    if ([0, 1, 2, 3].includes(index)) {
+                        if (pieceAtLocation.color !== kingColor && (piece_name === "Queen" || piece_name === "Rook")) {
+                            route.push([newRow, newCol]);
+                            routes.push(route);
+                        }
+                    } else if ([4, 5, 6, 7].includes(index)) {
+                        if (pieceAtLocation.color !== kingColor && piece_name === "Queen") {
+                            route.push([newRow, newCol]);
+                            routes.push(route);
+                        }
+
+                    }
+
+                    break;
+                }
+
+                newRow += dr;
+                newCol += dc;
+            }
+        });
+
+        return routes;
     }
 
     // generateFEN(grid) {

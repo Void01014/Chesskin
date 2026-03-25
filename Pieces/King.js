@@ -2,7 +2,7 @@ import Piece from "./Piece.js"
 
 export default class King extends Piece {
     getPotentialMoves(moveContext) {
-        const { row, col, board, PotentialCheckMoves } = moveContext;
+        const { row, col, board, PotentialCheckMoves, castling } = moveContext;
         let potentialMoves = [];
         const directions = [
             [0, -1],
@@ -29,8 +29,10 @@ export default class King extends Piece {
                     }
                 }
             }
-        });
+        });        
 
+        // console.log(PotentialCheckMoves);
+        
         return potentialMoves;
     }
 }
