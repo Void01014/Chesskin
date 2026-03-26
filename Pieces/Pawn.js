@@ -41,7 +41,7 @@ export default class Pawn extends Piece {
                     if (!withVertical && PotentialCheckMoves.length === 0) {
                         potentialMoves.push([row + dir, c]);
                     } else {
-                        if (targetPiece && targetPiece.color !== this.color) {
+                        if (targetPiece && targetPiece.color !== this.color || (targetPiece.color === this.color && friendlyFire)) {
                             potentialMoves.push([row + dir, c]);
                         }
                     }

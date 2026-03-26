@@ -2,7 +2,7 @@ import Piece from "./Piece.js"
 
 export default class Knight extends Piece {
     getPotentialMoves(moveContext) {
-        const { row, col, board} = moveContext;
+        const { row, col, board, friendlyFire } = moveContext;
         const offsets = [
             [2, 1], [2, -1], [-2, 1], [-2, -1],
             [1, 2], [1, -2], [-1, 2], [-1, -2]
@@ -17,7 +17,7 @@ export default class Knight extends Piece {
             if (newRow < 8 && newRow >= 0 && newCol < 8 && newCol >= 0) {
                 const piece = board.getPiece(newRow, newCol) ?? null;
                 
-                if((!piece || piece.color !== this.color)){
+                if((!piece || piece.color !== this.color || (piece.color === this.color && friendlyFire))){
                     potentialMoves.push([newRow, newCol]);
                 }
             }

@@ -2,7 +2,7 @@ import Piece from "./Piece.js"
 
 export default class Bishop extends Piece {
     getPotentialMoves(moveContext) {
-        const { row, col, board } = moveContext;
+        const { row, col, board , friendlyFire} = moveContext;
         let potentialMoves = [];
         const directions = [
             [-1, -1],
@@ -21,7 +21,7 @@ export default class Bishop extends Piece {
                 if (!pieceAtLocation) {
                     potentialMoves.push([newRow, newCol]);
                 } else {
-                    if (pieceAtLocation.color !== this.color) {
+                    if (pieceAtLocation.color !== this.color || (pieceAtLocation.color === this.color && friendlyFire)) {
                         potentialMoves.push([newRow, newCol]);
                     }
                     break;

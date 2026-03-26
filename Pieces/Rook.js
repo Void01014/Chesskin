@@ -3,7 +3,7 @@ import Piece from "./Piece.js"
 
 export default class Rook extends Piece {
     getPotentialMoves(moveContext) {
-        const { row, col, board} = moveContext;
+        const { row, col, board, friendlyFire } = moveContext;
         const potentialMoves = [];
         const directions = [
             [0, -1],
@@ -22,7 +22,7 @@ export default class Rook extends Piece {
                 if (!pieceAtSquare) {
                     potentialMoves.push([newRow, newCol]);
                 } else {
-                    if (pieceAtSquare.color !== this.color) {
+                    if (pieceAtSquare.color !== this.color || (pieceAtSquare.color === this.color && friendlyFire)) {
                         potentialMoves.push([newRow, newCol]);
                     }
                     break;
