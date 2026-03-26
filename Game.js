@@ -56,11 +56,11 @@ export default class Game {
 
         //for White
         placeBackRank('white', 7);
-        placePawns('white', 6);
+        // placePawns('white', 6);
 
         //for Black 
         placeBackRank('black', 0);
-        placePawns('black', 1);
+        // placePawns('black', 1);
 
         this.kingPositions.white = this.getKingPosition('white');
         this.kingPositions.black = this.getKingPosition('black');
@@ -201,21 +201,37 @@ export default class Game {
                 console.log(kingMoves)
 
                 if (kingMoves.length === 0) {
-                    const routes = this.getAttackingRoutes(kingPos.r, kingPos.c, opponentColor)
                     const potentialBlockMoves = this.getPotentialCheckMoves(opponentColor, this.PotentialCheckMoves);
 
-                    console.log('routes:');
-                    console.log(routes);
-                    console.log('blocks:');
-                    console.log(potentialBlockMoves);
-                    
+                    if (true) {
+                        const canBlockOrCapture = false;
+                        potentialBlockMoves.forEach(([r, c]) => {
+                            routes.forEach(([rr, rc]) => {
+                                if (rr === r && rc === c) {
+                                    const blocking_pieces = [];
 
+                                    this.board.grid.forEach((row, r) => {
+                                        row.forEach((piece, c) => {
+                                            if (piece) {
+                                                const potentialMoves = piece.getPotentialCheckMoves(r, c, this.board);
 
-                    if (routes.length === 1) {
-                        const canBlockOrCapture = potentialBlockMoves.some(([r, c]) =>
-                            routes[0].some(([rr, rc]) => rr === r && rc === c));
-                        
-                        alert(canBlockOrCapture)
+                                                potentialMoves.forEach(([mrow, mcol]) => {
+                                                    if (mrow === rr && mrow === rc) {
+                                                        blocking_pieces.push([r, c]);
+                                                    }
+                                                });
+                                            }
+                                        })
+                                    })
+
+                                    blocking_pieces.forEach(([r, c]) => {
+                                        if (this.sandboxValidation())
+                                            return true;
+                                    })
+
+                                }
+                            })
+                        })
                         if (canBlockOrCapture == false) {
                             alert('simple checkmate');
                         }
@@ -268,7 +284,7 @@ export default class Game {
         return this.PotentialCheckMoves;
     }
 
-    getAttackingRoutes(kingRow, kingCol, kingColor) {
+    everyPieceSandbox(kingRow, kingCol, kingColor) {
         let routes = [];
         const directions = [
             [0, -1],

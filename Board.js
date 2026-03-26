@@ -36,7 +36,7 @@ export default class Board {
                     const img = document.createElement('img');
 
                     const pieceName = piece.constructor.name.toLowerCase();
-                    img.src = `assets/skins/default/${piece.color}-${pieceName}.svg`;
+                    img.src = `assets/skins/blue_suit/${piece.color}-${pieceName}.svg`;
 
                     img.classList.add('piece');
                     img.classList.add('absolute');
