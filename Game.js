@@ -56,7 +56,7 @@ export default class Game {
 
         //for White
         placeBackRank('white', 7);
-        placePawns('white', 6);
+        // placePawns('white', 6);
 
         //for Black 
         placeBackRank('black', 0);

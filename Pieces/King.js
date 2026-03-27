@@ -15,7 +15,6 @@ export default class King extends Piece {
             [1, -1]
         ];
 
-
         directions.forEach(([dr, dc]) => {
             let newRow = row + dr;
             let newCol = col + dc;
@@ -28,12 +27,53 @@ export default class King extends Piece {
                     }
                 }
             }
-        });    
-        
-        
+        });
+
+
+        ////////////////////////////
+
+        const castling_dir = this.color === "white" ? -2 : 2;
+
+        if (castling) {
+            castling[this.color].forEach(side => {
+                if (side.toLowerCase() === 'q') {
+                    let newCol = col - 1;
+
+                    while (newCol >= 0 && newCol < 8) {
+                        const piece = board.getPiece(row, newCol) ?? null;
+
+                        if (piece && piece.constructor.name !== "Rook") {
+                            break;
+                        } else if (!piece) {
+                            newCol--;
+                            continue;
+                        } else {
+                            potentialMoves.push([row, col + castling_dir]);
+                            break;
+                        }
+                    }
+                } else {
+                    let newCol = col + 1;
+
+                    while (newCol >= 0 && newCol < 8) {
+                        const piece = board.getPiece(row, newCol) ?? null;
+
+                        if (piece && piece.constructor.name !== "Rook") {
+                            break;
+                        } else if (!piece) {
+                            newCol++;
+                        } else {
+                            potentialMoves.push([row, col - castling_dir]);
+                            break;
+
+                        }
+                    };
+                }
+            });
+        }
 
         // console.log(PotentialCheckMoves);
-        
+
         return potentialMoves;
     }
 }
