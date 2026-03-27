@@ -32,7 +32,6 @@ export default class King extends Piece {
 
         ////////////////////////////
 
-        const castling_dir = this.color === "white" ? -2 : 2;
 
         if (castling) {
             castling[this.color].forEach(side => {
@@ -41,6 +40,12 @@ export default class King extends Piece {
 
                     while (newCol >= 0 && newCol < 8) {
                         const piece = board.getPiece(row, newCol) ?? null;
+                        const is_square_safe = !PotentialCheckMoves.some(move => (row === move[0] && newCol === move[1]));
+
+
+                        if (!is_square_safe && !friendlyFire && newCol > 1) {
+                            break;
+                        }
 
                         if (piece && piece.constructor.name !== "Rook") {
                             break;
@@ -48,7 +53,7 @@ export default class King extends Piece {
                             newCol--;
                             continue;
                         } else {
-                            potentialMoves.push([row, col + castling_dir]);
+                            potentialMoves.push([row, col - 2 ]);
                             break;
                         }
                     }
@@ -57,13 +62,18 @@ export default class King extends Piece {
 
                     while (newCol >= 0 && newCol < 8) {
                         const piece = board.getPiece(row, newCol) ?? null;
+                        const is_square_safe = !PotentialCheckMoves.some(move => row === move[0] && newCol === move[1]);
+
+                        if (!is_square_safe && !friendlyFire && newCol < 7) {
+                            break;
+                        }
 
                         if (piece && piece.constructor.name !== "Rook") {
                             break;
                         } else if (!piece) {
                             newCol++;
                         } else {
-                            potentialMoves.push([row, col - castling_dir]);
+                            potentialMoves.push([row, col + 2]);
                             break;
 
                         }

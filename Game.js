@@ -40,10 +40,10 @@ export default class Game {
         const placeBackRank = (color, row) => {
             this.board.setPiece(row, 0, new Rook(color));
             this.board.setPiece(row, 7, new Rook(color));
-            this.board.setPiece(row, 1, new Knight(color));
-            this.board.setPiece(row, 6, new Knight(color));
-            this.board.setPiece(row, 2, new Bishop(color));
-            this.board.setPiece(row, 5, new Bishop(color));
+            // this.board.setPiece(row, 1, new Knight(color));
+            // this.board.setPiece(row, 6, new Knight(color));
+            // this.board.setPiece(row, 2, new Bishop(color));
+            // this.board.setPiece(row, 5, new Bishop(color));
             this.board.setPiece(row, 3, new Queen(color));
             this.board.setPiece(row, 4, new King(color));
         };
@@ -60,7 +60,7 @@ export default class Game {
 
         //for Black 
         placeBackRank('black', 0);
-        placePawns('black', 1);
+        // placePawns('black', 1);
 
         this.kingPositions.white = this.getKingPosition('white');
         this.kingPositions.black = this.getKingPosition('black');
@@ -155,6 +155,18 @@ export default class Game {
             }
 
             //Logic for castling
+            if(selectedPiece.constructor.name === 'King'){
+                if(col - this.selectedSquare.col > 1){
+                    const king_s_rook = this.board.getPiece(this.selectedSquare.row, 7);
+                    this.board.setPiece(this.selectedSquare.row, 5, king_s_rook);
+                    this.board.setPiece(this.selectedSquare.row, 7, null);
+                }else if(col - this.selectedSquare.col < -1){
+                    const queen_s_rook = this.board.getPiece(this.selectedSquare.row, 0);
+                    this.board.setPiece(this.selectedSquare.row, 3, queen_s_rook);
+                    this.board.setPiece(this.selectedSquare.row, 0, null);
+                }
+            }
+
             if (selectedPiece.constructor.name === 'King') {
                 this.castling[selectedPiece.color] = []
             } else if (selectedPiece.constructor.name === 'Rook') {
@@ -170,7 +182,7 @@ export default class Game {
                 }
             }
 
-            console.log(this.castling);
+            // console.log(this.castling);
             
 
             ///////////////////////////
