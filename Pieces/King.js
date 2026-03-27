@@ -32,18 +32,18 @@ export default class King extends Piece {
 
         ////////////////////////////
 
-
         if (castling) {
+            const is_check = PotentialCheckMoves.some(move => (move[0] === row && move[1] === col)) && !friendlyFire;
+
             castling[this.color].forEach(side => {
                 if (side.toLowerCase() === 'q') {
                     let newCol = col - 1;
 
                     while (newCol >= 0 && newCol < 8) {
                         const piece = board.getPiece(row, newCol) ?? null;
-                        const is_square_safe = !PotentialCheckMoves.some(move => (row === move[0] && newCol === move[1]));
+                        const is_square_safe = !PotentialCheckMoves.some(move => row === move[0] && newCol === move[1]) && !friendlyFire;
 
-
-                        if (!is_square_safe && !friendlyFire && newCol > 1) {
+                        if ((!is_square_safe || is_check) && newCol > 1) {
                             break;
                         }
 
@@ -53,7 +53,7 @@ export default class King extends Piece {
                             newCol--;
                             continue;
                         } else {
-                            potentialMoves.push([row, col - 2 ]);
+                            potentialMoves.push([row, col - 2]);
                             break;
                         }
                     }
@@ -62,9 +62,9 @@ export default class King extends Piece {
 
                     while (newCol >= 0 && newCol < 8) {
                         const piece = board.getPiece(row, newCol) ?? null;
-                        const is_square_safe = !PotentialCheckMoves.some(move => row === move[0] && newCol === move[1]);
+                        const is_square_safe = !PotentialCheckMoves.some(move => row === move[0] && newCol === move[1]) && !friendlyFire;
 
-                        if (!is_square_safe && !friendlyFire && newCol < 7) {
+                        if ((!is_square_safe || is_check) && newCol < 7) {
                             break;
                         }
 
@@ -81,8 +81,6 @@ export default class King extends Piece {
                 }
             });
         }
-
-        // console.log(PotentialCheckMoves);
 
         return potentialMoves;
     }

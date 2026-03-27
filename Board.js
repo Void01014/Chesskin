@@ -97,4 +97,10 @@ export default class Board {
             }
         }
     }
+
+    promotionModal() {
+        const promotionModal = document.getElementById('promotionModal');
+
+        promotionModal.classList.remove('hidden')
+    }
 }
