@@ -25,6 +25,15 @@ export default class Rook extends Piece {
                     if (pieceAtSquare.color !== this.color || (pieceAtSquare.color === this.color && friendlyFire)) {
                         potentialMoves.push([newRow, newCol]);
                     }
+                    if (pieceAtSquare.color !== this.color && pieceAtSquare.constructor.name === "King") {
+                        const rowBehind = newRow + dr;
+                        const colBehind = newCol + dc;
+
+                        if (rowBehind >= 0 && rowBehind < 8 && colBehind >= 0 && colBehind < 8) {
+                            potentialMoves.push([rowBehind, colBehind]);
+                        }
+                    }
+                    
                     break;
                 }
                 newRow += dr;

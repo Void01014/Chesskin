@@ -15,7 +15,6 @@ export default class King extends Piece {
             [1, -1]
         ];
 
-        const otherColor = this.color === 'white' ? 'black' : 'white'
 
         directions.forEach(([dr, dc]) => {
             let newRow = row + dr;
@@ -29,7 +28,9 @@ export default class King extends Piece {
                     }
                 }
             }
-        });        
+        });    
+        
+        
 
         // console.log(PotentialCheckMoves);
         

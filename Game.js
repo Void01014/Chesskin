@@ -56,11 +56,11 @@ export default class Game {
 
         //for White
         placeBackRank('white', 7);
-        // placePawns('white', 6);
+        placePawns('white', 6);
 
         //for Black 
         placeBackRank('black', 0);
-        // placePawns('black', 1);
+        placePawns('black', 1);
 
         this.kingPositions.white = this.getKingPosition('white');
         this.kingPositions.black = this.getKingPosition('black');
@@ -158,7 +158,7 @@ export default class Game {
             if (selectedPiece.constructor.name === 'King') {
                 this.castling[selectedPiece.color] = []
             } else if (selectedPiece.constructor.name === 'Rook') {
-                const kingCol = this.kingPositions[selectedPiece.color][1]; // Get the COL index
+                const kingCol = this.kingPositions[selectedPiece.color].c;
                 const rookCol = this.selectedSquare.col;
 
                 if (rookCol < kingCol) {
@@ -170,12 +170,14 @@ export default class Game {
                 }
             }
 
+            console.log(this.castling);
+            
+
             ///////////////////////////
 
             // console.log(`Moved to ${row},${col}`);
             const is_check = this.isCheck(this.currentPlayer);
             const enemy_have_legal_moves = this.everyPieceSandbox(this.board.grid, this.currentPlayer);
-            // alert(enemy_have_legal_moves)
 
             if (is_check) {
                 const kingPos = this.kingPositions[opponentColor];
@@ -187,10 +189,32 @@ export default class Game {
 
             }
 
+            // alert(enemy_have_legal_moves)
+
             if (!enemy_have_legal_moves) {
-                if (is_check) {
+                this.getPotentialCheckMoves(this.currentPlayer);
+                this.getPotentialCheckMoves(this.currentPlayer, this.PotentialCheckMoves);
+
+                const op_kingRow = this.kingPositions[opponentColor].r;
+                const op_kingCol = this.kingPositions[opponentColor].c;
+                const op_king = this.board.getPiece(op_kingRow, op_kingCol);
+
+                const moveContext = {
+                    board: this.board,
+                    row: op_kingRow,
+                    col: op_kingCol,
+                    withVertical: true,
+                    friendlyFire: true,
+                    PotentialCheckMoves: this.PotentialCheckMoves,   /////special for the king
+                    enPassantTarget: this.enPassantTarget,           /////special for the pawn
+                    castling: this.castling                          /////special for King/Rook
+                }
+
+                const kingMoves = op_king.getPotentialMoves(moveContext);                
+                
+                if (is_check && kingMoves.length === 0) {
                     alert('checkmate');
-                } else {
+                } else if(kingMoves.length === 0){
                     alert('stalemate');
                 }
             }
@@ -264,9 +288,10 @@ export default class Game {
     //////////////////////////////////
 
     isCheck(color) {
-        const otherColor = color === 'white' ? 'black' : 'white';
-
+        const otherColor = color === 'white' ? 'black' : 'white';        
+        
         this.getPotentialCheckMoves(color);
+                        
         return this.PotentialCheckMoves.some(move =>
             move[0] === this.kingPositions[otherColor].r &&
             move[1] === this.kingPositions[otherColor].c
@@ -276,23 +301,25 @@ export default class Game {
     sandboxValidation(originalRow, originalCol, desiredRow, desiredCol, piece, color, withmove) {
         const originalOccupant = this.board.getPiece(desiredRow, desiredCol);
         const isKing = piece.constructor.name === 'King';
+        const otherColor = color === 'white' ? 'black' : 'white';
+
 
         if (isKing) {
             this.board.setPiece(desiredRow, desiredCol, piece);
             this.board.setPiece(originalRow, originalCol, null);
-            this.kingPositions[this.currentPlayer] = { r: desiredRow, c: desiredCol };
+            this.kingPositions[otherColor] = { r: desiredRow, c: desiredCol };
         } else {
             this.board.setPiece(desiredRow, desiredCol, piece);
             this.board.setPiece(originalRow, originalCol, null);
         }
-
-        const stillInCheck = this.isCheck(color);
+        
+        const stillInCheck = this.isCheck(color);        
 
         if (stillInCheck || !withmove) {
             if (isKing) {
                 this.board.setPiece(originalRow, originalCol, piece);
                 this.board.setPiece(desiredRow, desiredCol, originalOccupant);
-                this.kingPositions[color] = { r: originalRow, c: originalCol };
+                this.kingPositions[otherColor] = { r: originalRow, c: originalCol };
             } else {
                 this.board.setPiece(originalRow, originalCol, piece);
                 this.board.setPiece(desiredRow, desiredCol, originalOccupant);
@@ -324,8 +351,6 @@ export default class Game {
                     }
 
                     const potentialMoves = piece.getPotentialMoves(moveContext);
-                    // console.log(piece);
-                    // console.log(potentialMoves);
 
                     const threatens = potentialMoves.some(([mrow, mcol]) =>
                         this.sandboxValidation(r, c, mrow, mcol, piece, color, false)
