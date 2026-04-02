@@ -2,16 +2,12 @@ import Game from "./Game.js";
 
 const game = new Game;
 
-const board = document.getElementById("board");
-const promotionModal = document.getElementById('promotionModal');
+const overlay = document.getElementById("overlay");
 
 game.board.fillBoard();
 game.board.Render();
 
 
-board.addEventListener('click', (event) => {
-    promotionModal.classList.add('hidden');
-});
 
 // game.board.renderConsole();
 // game.handleSquareClick(6, 2);

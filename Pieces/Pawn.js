@@ -11,7 +11,7 @@ export default class Pawn extends Piece {
     //classes will receive additional params but that won't effect anything
 
     getPotentialMoves(moveContext) {
-        const { row, col, board, withVertical, enPassantTarget , PotentialCheckMoves, friendlyFire} = moveContext;
+        const { row, col, board, withVertical, enPassantTarget, PotentialCheckMoves, friendlyFire } = moveContext;
         let potentialMoves = [];
         const dir = this.color === 'white' ? -1 : 1;
 
@@ -33,18 +33,18 @@ export default class Pawn extends Piece {
 
         captureCols.forEach(c => {
             const targetRow = row + dir;
+            if (targetRow < 0 || targetRow > 7 || c < 0 || c > 7) return;
 
-            if (targetRow >= 0 && targetRow < 8) {
-                const targetPiece = board.getPiece(targetRow, c);
-                
-                if (c >= 0 && c < 8) {
-                    if (!withVertical && PotentialCheckMoves.length === 0) {
-                        potentialMoves.push([row + dir, c]);
-                    } else {
-                        if (targetPiece && targetPiece.color !== this.color || (targetPiece && targetPiece.color === this.color && friendlyFire)) {
-                            potentialMoves.push([row + dir, c]);
-                        }
-                    }
+            const targetPiece = board.getPiece(targetRow, c);
+
+            if (!withVertical && PotentialCheckMoves.length !== 0) {
+                potentialMoves.push([targetRow, c]);
+                return;
+            }
+
+            if (targetPiece) {
+                if (targetPiece.color !== this.color || (targetPiece.color === this.color && friendlyFire)) {
+                    potentialMoves.push([targetRow, c]);
                 }
             }
         });

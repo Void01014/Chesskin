@@ -99,8 +99,26 @@ export default class Board {
     }
 
     promotionModal() {
+        const overlay = document.getElementById('overlay');
+        overlay.classList.remove('hidden');
+    }
+
+    getPromotionChoice() {
         const promotionModal = document.getElementById('promotionModal');
 
-        promotionModal.classList.remove('hidden')
+        return new Promise((resolve) => {
+            const handleClick = (event) => {
+                if (event.target.classList.contains('piece')) {
+                    const pieceName = event.target.id;
+
+                    const overlay = document.getElementById("overlay");
+
+                    overlay.classList.toggle('hidden');
+                    resolve(pieceName);
+                }
+            };
+
+            promotionModal.addEventListener('click', handleClick, { once: true });
+        });
     }
 }

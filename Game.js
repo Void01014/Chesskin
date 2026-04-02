@@ -56,7 +56,7 @@ export default class Game {
 
         //for White
         placeBackRank('white', 7);
-        placePawns('white', 6);
+        placePawns('white', 1);
 
         //for Black 
         placeBackRank('black', 0);
@@ -185,11 +185,11 @@ export default class Game {
             //Logic for promotion
 
             if (selectedPiece.constructor.name === 'Pawn') {
-                const promotionRank = this.color === 'white' ? 0 : 7;
+                const promotionRank = selectedPiece.color === 'white' ? 0 : 7;
 
                 if (row === promotionRank) {
-                    alert()
-                    this.promote(row, col)
+                    this.board.promotionModal();
+                    this.promote(row, col, selectedPiece.color)
                 }
             }
 
@@ -385,10 +385,6 @@ export default class Game {
 
     ////////////////////////////////////
 
-    promote(row, col) {
-        this.board.promotionModal();
-    }
-
     finalizeTurn(retry) {
         this.selectedSquare = null;
         if (!retry) {
@@ -400,6 +396,25 @@ export default class Game {
         this.kingPositions.white = this.getKingPosition('white');
         this.kingPositions.black = this.getKingPosition('black');
         this.PotentialCheckMoves = [];
+    }
+
+    async promote(row, col, color) {
+        const pieceName = await this.board.getPromotionChoice();
+
+        const pieceClasses = {
+            'Queen': Queen,
+            'Rook': Rook,
+            'Knight': Knight,
+            'Bishop': Bishop
+        };
+
+        const chosenClass = pieceClasses[pieceName];
+        const promotedPiece = new chosenClass(color);
+
+        console.log(promotedPiece)
+        this.board.setPiece(row, col, promotedPiece)
+        this.board.Render();
+
     }
 
 }
