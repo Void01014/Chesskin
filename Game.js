@@ -38,8 +38,8 @@ export default class Game {
 
     initializeBoard() {
         const placeBackRank = (color, row) => {
-            this.board.setPiece(row, 0, new Rook(color));
-            this.board.setPiece(row, 7, new Rook(color));
+            // this.board.setPiece(row, 0, new Rook(color));
+            // this.board.setPiece(row, 7, new Rook(color));
             // this.board.setPiece(row, 1, new Knight(color));
             // this.board.setPiece(row, 6, new Knight(color));
             // this.board.setPiece(row, 2, new Bishop(color));
@@ -55,11 +55,11 @@ export default class Game {
         }
 
         //for White
-        placeBackRank('white', 7);
-        placePawns('white', 1);
+        placeBackRank('white', 5);
+        placePawns('white', 6);
 
         //for Black 
-        placeBackRank('black', 0);
+        placeBackRank('black', 3);
         // placePawns('black', 1);
 
         this.kingPositions.white = this.getKingPosition('white');
@@ -87,7 +87,6 @@ export default class Game {
 
             if (selectedPiece.constructor.name === "King") {
                 this.getPotentialCheckMoves(otherColor);
-                this.getPotentialCheckMoves(otherColor, this.PotentialCheckMoves);
             }
 
             const moveContext = {
@@ -96,8 +95,8 @@ export default class Game {
                 col: this.selectedSquare.col ?? null,
                 withVertical: true,
                 friendlyFire: false,
-                PotentialCheckMoves: this.PotentialCheckMoves,   /////special for the king
-                enPassantTarget: this.enPassantTarget,           /////special for the pawn
+                PotentialCheckMoves: this.PotentialCheckMoves,   /////special for the King/Pawn
+                enPassantTarget: this.enPassantTarget,           /////special for the Pawn
                 castling: this.castling                          /////special for King/Rook
             }
 
@@ -128,7 +127,6 @@ export default class Game {
             this.finalizeTurn(true);
             return;
         }
-
 
         if (this.sandboxValidation(this.selectedSquare.row, this.selectedSquare.col, row, col, selectedPiece, opponentColor, true)) {
             //Logic for En Passant
@@ -209,11 +207,8 @@ export default class Game {
 
             }
 
-            // alert(enemy_have_legal_moves)
-
             if (!enemy_have_legal_moves) {
                 this.getPotentialCheckMoves(this.currentPlayer);
-                this.getPotentialCheckMoves(this.currentPlayer, this.PotentialCheckMoves);
 
                 const op_kingRow = this.kingPositions[opponentColor].r;
                 const op_kingCol = this.kingPositions[opponentColor].c;
@@ -245,6 +240,10 @@ export default class Game {
         }
     }
 
+    async executeMove(startRow, startCol, endRow, endCol, aiPromotionChoice = null) {
+
+    }
+
     ///////////////////////////////////
 
     getKingPosition(color) {
@@ -263,6 +262,7 @@ export default class Game {
 
     getPotentialCheckMoves(color, PotentialCheckMoves = []) {
         this.PotentialCheckMoves = [];
+
         this.board.grid.forEach((row, crow) => {
             row.forEach((position, ccol) => {
                 if (position && position.color == color) {
@@ -273,8 +273,8 @@ export default class Game {
                         col: ccol,
                         withVertical: false,
                         friendlyFire: true,
-                        PotentialCheckMoves: PotentialCheckMoves,        /////special for the king
-                        enPassantTarget: this.enPassantTarget,           /////special for the pawn
+                        PotentialCheckMoves: PotentialCheckMoves,        /////special for the King/Pawn
+                        enPassantTarget: this.enPassantTarget,           /////special for the Pawn
                         castling: this.castling                          /////special for King/Rook
                     }
                     this.PotentialCheckMoves.push(...piece.getPotentialMoves(moveContext))
@@ -283,27 +283,6 @@ export default class Game {
         });
         return this.PotentialCheckMoves;
     }
-
-    // generateFEN(grid) {
-    //     let FEN = "";
-    //     let emptyCount = 0;
-
-    //     grid.forEach((row, i) => {
-    //         row.forEach((square, j) => {
-    //             if(!square){
-    //                 emptyCount++;
-    //             }else{
-    //                 if(emptyCount > 0){
-    //                     FEN.push(`${emptyCount}`);
-    //                 }else{
-    //                     FEN.push(square.constructor.name[0].toLowerCase());
-    //                 }
-    //             }
-    //         })
-    //         emptyCount = 0;
-    //         FEN.push('/');
-    //     })
-    // }
 
     //////////////////////////////////
 
@@ -356,7 +335,7 @@ export default class Game {
                 if (piece && piece.color === otherColor) {
                     if (piece.constructor.name === "King") {
                         this.getPotentialCheckMoves(color);
-                        this.getPotentialCheckMoves(color, this.PotentialCheckMoves);
+                        // this.getPotentialCheckMoves(color, this.PotentialCheckMoves);
                     }
 
                     const moveContext = {
@@ -416,5 +395,9 @@ export default class Game {
         this.board.Render();
 
     }
+
+    //////////////////////////////////
+    // Stockfish
+
 
 }

@@ -11,7 +11,7 @@ export default class Pawn extends Piece {
     //classes will receive additional params but that won't effect anything
 
     getPotentialMoves(moveContext) {
-        const { row, col, board, withVertical, enPassantTarget, PotentialCheckMoves, friendlyFire } = moveContext;
+        const { row, col, board, withVertical, enPassantTarget, friendlyFire } = moveContext;
         let potentialMoves = [];
         const dir = this.color === 'white' ? -1 : 1;
 
@@ -37,7 +37,7 @@ export default class Pawn extends Piece {
 
             const targetPiece = board.getPiece(targetRow, c);
 
-            if (!withVertical && PotentialCheckMoves.length !== 0) {
+            if (!withVertical) {
                 potentialMoves.push([targetRow, c]);
                 return;
             }

@@ -22,7 +22,7 @@ export default class King extends Piece {
             if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
                 const piece = board.getPiece(newRow, newCol) ?? null;
                 if (!piece || piece.color !== this.color || (piece.color === this.color && friendlyFire)) {
-                    if (!PotentialCheckMoves || !PotentialCheckMoves.some(move => move[0] === newRow && move[1] === newCol)) {
+                    if (PotentialCheckMoves.length == 0 || !PotentialCheckMoves.some(move => move[0] === newRow && move[1] === newCol)) {
                         potentialMoves.push([newRow, newCol]);
                     }
                 }
