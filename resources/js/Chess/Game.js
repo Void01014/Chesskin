@@ -10,8 +10,9 @@ const gameState = {
     IDLE: 'IDLE',
     SELECTING_PIECE: 'SELECTING_PIECE',
     SELECTING_MOVE: 'SELECTING_MOVE',
+    PROMOTION_PENDING: 'PROMOTION_PENDING',
     PAUSED: 'PAUSED',
-    GMAE_OVER: 'GMAE_OVER',
+    GMAE_OVER: 'GAME_OVER',
 }
 
 export default class Game {
@@ -22,13 +23,18 @@ export default class Game {
         this.currentPlayer = 'white';
         this.humanColor = 'white';
         this.isAiGame = true;
-        this.aiWorker = new Worker('./stockfish.js');
+
+        this.aiWorker = new Worker('/js/stockfish.js');
         this.aiWorker.onmessage = (event) => {
+            console.log("Stockfish says:", event.data);
             const message = event.data;
             if (message.startsWith('bestmove')) {
                 const uciMove = message.split(' ')[1];
                 this.handleAiResponse(uciMove);
             }
+        };
+        this.aiWorker.onerror = (error) => {
+            console.error("Stockfish Worker Error:", error);
         };
 
         // Initialize
@@ -41,6 +47,7 @@ export default class Game {
             white: { r: null, c: null },
             black: { r: null, c: null }
         };
+        this.pendingPromotion = null;
         this.enPassantTarget = null;
         this.castling = {
             white: ['Q', 'K'],
@@ -116,7 +123,10 @@ export default class Game {
 
             this.validMovesForSelected = selectedPiece.getPotentialMoves(moveContext);
 
+            // alert();
+
             this.board.RenderMoves(this.validMovesForSelected)
+            // alert();
         } else {
             // console.log("Empty square or wrong color!");
         }
@@ -150,8 +160,8 @@ export default class Game {
     }
 
     async executeMove(startRow, startCol, endRow, endCol, aiPromotionChoice = null) {
-        const otherColor = this.currentPlayer === 'white' ? 'black' : 'white'; 
-        if(this.isCheck(otherColor)){
+        const otherColor = this.currentPlayer === 'white' ? 'black' : 'white';
+        if (this.isCheck(otherColor)) {
             const kingPos = this.kingPositions[this.currentPlayer];
             const myKingElem = document.querySelector(`.square[data-row="${kingPos.r}"][data-col="${kingPos.c}"]`);
             const squareColor = kingPos.c % 2 === 0 ? 'white' : '#00b3ff';
@@ -167,6 +177,7 @@ export default class Game {
 
         this.board.setPiece(endRow, endCol, selectedPiece);
         this.board.setPiece(startRow, startCol, null);
+        this.board.grid = [...this.board.grid];
 
         //Logic for En Passant
         if (selectedPiece.constructor.name === 'Pawn' && this.enPassantTarget) {
@@ -237,14 +248,19 @@ export default class Game {
 
                 this.board.setPiece(endRow, endCol, promotedPiece)
             } else {
-                this.board.promotionModal();
-                await this.promote(endRow, endCol, selectedPiece.color)
+                this.pendingPromotion = [endRow, endCol];
+                this.state = gameState.PROMOTION_PENDING;
+                return;
             }
         }
 
-        ///////////////////////////
+        this.check_n_checkmate();
 
         // console.log(`Moved to ${endRow},${endCol}`);
+    }
+
+    check_n_checkmate() {
+        const opponentColor = this.currentPlayer === 'white' ? 'black' : 'white';
         const is_check = this.isCheck(this.currentPlayer);
         const enemy_have_legal_moves = this.everyPieceSandbox(this.board.grid, this.currentPlayer);
 
@@ -284,7 +300,6 @@ export default class Game {
             }
         }
 
-        this.board.Render();
         this.finalizeTurn(false);
     }
 
@@ -420,6 +435,8 @@ export default class Game {
         this.kingPositions.white = this.getKingPosition('white');
         this.kingPositions.black = this.getKingPosition('black');
         this.PotentialCheckMoves = [];
+        this.pendingPromotion = null;
+
 
         if (!retry && this.isAiGame && this.currentPlayer !== this.humanColor) {
             setTimeout(() => {
@@ -428,9 +445,8 @@ export default class Game {
         }
     }
 
-    async promote(row, col, color) {
-        const pieceName = await this.board.getPromotionChoice();
-
+    promote(pieceName, color) {
+        const [row, col] = this.pendingPromotion;
         const pieceClasses = {
             'Queen': Queen,
             'Rook': Rook,
@@ -442,7 +458,7 @@ export default class Game {
         const promotedPiece = new chosenClass(color);
 
         this.board.setPiece(row, col, promotedPiece)
-        this.board.Render();
+        this.check_n_checkmate();
     }
 
     //////////////////////////////////
