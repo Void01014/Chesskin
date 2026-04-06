@@ -52,13 +52,13 @@ export default class Game {
 
     initializeBoard() {
         const placeBackRank = (color, row) => {
-            this.board.setPiece(row, 0, new Rook(color));
-            this.board.setPiece(row, 7, new Rook(color));
-            this.board.setPiece(row, 1, new Knight(color));
-            this.board.setPiece(row, 6, new Knight(color));
-            this.board.setPiece(row, 2, new Bishop(color));
-            this.board.setPiece(row, 5, new Bishop(color));
-            this.board.setPiece(row, 3, new Queen(color));
+            // this.board.setPiece(row, 0, new Rook(color));
+            // this.board.setPiece(row, 7, new Rook(color));
+            // this.board.setPiece(row, 1, new Knight(color));
+            // this.board.setPiece(row, 6, new Knight(color));
+            // this.board.setPiece(row, 2, new Bishop(color));
+            // this.board.setPiece(row, 5, new Bishop(color));
+            // this.board.setPiece(row, 3, new Queen(color));
             this.board.setPiece(row, 4, new King(color));
         };
 
@@ -70,11 +70,11 @@ export default class Game {
 
         //for White
         placeBackRank('white', 7);
-        placePawns('white', 6);
+        placePawns('white', 2);
 
         //for Black 
         placeBackRank('black', 0);
-        placePawns('black', 1);
+        // placePawns('black', 1);
 
         this.kingPositions.white = this.getKingPosition('white');
         this.kingPositions.black = this.getKingPosition('black');
@@ -150,6 +150,18 @@ export default class Game {
     }
 
     async executeMove(startRow, startCol, endRow, endCol, aiPromotionChoice = null) {
+        const otherColor = this.currentPlayer === 'white' ? 'black' : 'white'; 
+        if(this.isCheck(otherColor)){
+            const kingPos = this.kingPositions[this.currentPlayer];
+            const myKingElem = document.querySelector(`.square[data-row="${kingPos.r}"][data-col="${kingPos.c}"]`);
+            const squareColor = kingPos.c % 2 === 0 ? 'white' : '#00b3ff';
+
+            if (myKingElem) {
+                myKingElem.style.backgroundColor = squareColor;
+            }
+        }
+
+
         const selectedPiece = this.board.getPiece(startRow, startCol);
         const opponentColor = this.currentPlayer === 'white' ? 'black' : 'white';
 
@@ -174,7 +186,7 @@ export default class Game {
         } else {
             this.enPassantTarget = null; // This clears it if the move wasn't a double-step
         }
-        
+
         if (selectedPiece.xtraMove !== undefined) {
             selectedPiece.xtraMove = 0;
         }
@@ -207,14 +219,26 @@ export default class Game {
             }
         }
 
+        const isPawn = selectedPiece.constructor.name === 'Pawn';
+        const promotionRank = selectedPiece.color === 'white' ? 0 : 7;
+
         //Logic for promotion
+        if (isPawn && endRow === promotionRank) {
+            if (aiPromotionChoice) {
+                const pieceClasses = {
+                    'q': Queen,
+                    'r': Rook,
+                    'b': Bishop,
+                    'n': Knight
+                }
 
-        if (selectedPiece.constructor.name === 'Pawn') {
-            const promotionRank = selectedPiece.color === 'white' ? 0 : 7;
+                const chosenClass = pieceClasses[aiPromotionChoice] || Queen;
+                const promotedPiece = new chosenClass(selectedPiece.color);
 
-            if (endRow === promotionRank) {
+                this.board.setPiece(endRow, endCol, promotedPiece)
+            } else {
                 this.board.promotionModal();
-                this.promote(endRow, endCol, selectedPiece.color)
+                await this.promote(endRow, endCol, selectedPiece.color)
             }
         }
 
@@ -231,7 +255,6 @@ export default class Game {
             if (enemyKingElem) {
                 enemyKingElem.style.backgroundColor = 'red';
             }
-
         }
 
         if (!enemy_have_legal_moves) {
@@ -418,7 +441,6 @@ export default class Game {
         const chosenClass = pieceClasses[pieceName];
         const promotedPiece = new chosenClass(color);
 
-        console.log(promotedPiece)
         this.board.setPiece(row, col, promotedPiece)
         this.board.Render();
     }
