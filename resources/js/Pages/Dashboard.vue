@@ -2,9 +2,8 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import { ref, reactive, onMounted } from 'vue';
-import Game from '@/Chess/Game'; // Make sure Game.js is in resources/js/Chess/
+import Game from '@/Chess/Game';
 
-// This keeps your logic alive!
 const game = reactive(new Game());
 
 </script>
@@ -18,7 +17,7 @@ const game = reactive(new Game());
                     (r + c) % 2 !== 0 ? 'bg-green-700' : 'bg-[#eeeed2]'
                 ]">
                     <img v-if="piece"
-                        :src="`/assets/skins/blue_suit/${piece.color}-${piece.constructor.name.toLowerCase()}.svg`"
+                        :src="`/assets/skins/ace_attourney/${piece.color}-${piece.constructor.name.toLowerCase()}.svg`"
                         class="piece absolute w-[90%] z-10 pointer-events-none" />
                     <div v-if="game.board.highlightedMoves.some(m => m[0] === r && m[1] === c)"
                         class="highlight pointer-events-none z-20">

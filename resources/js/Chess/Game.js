@@ -17,16 +17,15 @@ const gameState = {
 
 export default class Game {
 
-    constructor() {
+    constructor(mode, difficulty, timeLimit) {
         this.board = new Board(this);
         this.state = gameState.SELECTING_PIECE;
         this.currentPlayer = 'white';
         this.humanColor = 'white';
-        this.isAiGame = true;
-
+        
+        this.isAiGame = mode;
         this.aiWorker = new Worker('/js/stockfish.js');
         this.aiWorker.onmessage = (event) => {
-            console.log("Stockfish says:", event.data);
             const message = event.data;
             if (message.startsWith('bestmove')) {
                 const uciMove = message.split(' ')[1];
@@ -36,10 +35,13 @@ export default class Game {
         this.aiWorker.onerror = (error) => {
             console.error("Stockfish Worker Error:", error);
         };
-
-        // Initialize
         this.aiWorker.postMessage('uci');
         this.aiWorker.postMessage('isready');
+        this.aiWorker.postMessage('setoption name UCI_LimitStrength value true');
+        this.aiWorker.postMessage(`setoption name Skill Level value ${difficulty}`);
+        this.aiWorker.postMessage(`setoption name Skill Level Maximum Error value ${20 - difficulty}`); //the higher the level the less mistakes stockfish will make
+
+
         this.selectedSquare = null;
         this.validMovesForSelected = [];
         this.PotentialCheckMoves = [];
@@ -59,13 +61,13 @@ export default class Game {
 
     initializeBoard() {
         const placeBackRank = (color, row) => {
-            // this.board.setPiece(row, 0, new Rook(color));
-            // this.board.setPiece(row, 7, new Rook(color));
-            // this.board.setPiece(row, 1, new Knight(color));
-            // this.board.setPiece(row, 6, new Knight(color));
-            // this.board.setPiece(row, 2, new Bishop(color));
-            // this.board.setPiece(row, 5, new Bishop(color));
-            // this.board.setPiece(row, 3, new Queen(color));
+            this.board.setPiece(row, 0, new Rook(color));
+            this.board.setPiece(row, 7, new Rook(color));
+            this.board.setPiece(row, 1, new Knight(color));
+            this.board.setPiece(row, 6, new Knight(color));
+            this.board.setPiece(row, 2, new Bishop(color));
+            this.board.setPiece(row, 5, new Bishop(color));
+            this.board.setPiece(row, 3, new Queen(color));
             this.board.setPiece(row, 4, new King(color));
         };
 
@@ -77,11 +79,11 @@ export default class Game {
 
         //for White
         placeBackRank('white', 7);
-        placePawns('white', 2);
+        placePawns('white', 6);
 
         //for Black 
         placeBackRank('black', 0);
-        // placePawns('black', 1);
+        placePawns('black', 1);
 
         this.kingPositions.white = this.getKingPosition('white');
         this.kingPositions.black = this.getKingPosition('black');

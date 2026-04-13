@@ -3,7 +3,7 @@ export default class Board {
         this.game = gameInstance;
         // The GRID is the only thing Vue cares about
         this.grid = Array.from({ length: 8 }, () => Array(8).fill(null));
-        this.highlightedMoves = []; // New property to track moves
+        this.highlightedMoves = [];
     }
 
     setPiece(row, col, piece) {
@@ -14,7 +14,6 @@ export default class Board {
         return this.grid[row][col];
     }
 
-    // Vue replaces Render()! We just update the highlights array.
     RenderMoves(moves) {
         this.highlightedMoves = moves;
     }
