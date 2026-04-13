@@ -17,6 +17,11 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->foreignId('equipped_board_id')->nullable()->constrained('items');
+            $table->string('equipped_theme')->default('classic');
+            $table->json('custom_pieces')->nullable();
+            $table->integer('credits');
+            $table->boolean('isAdmin');
             $table->rememberToken();
             $table->timestamps();
         });

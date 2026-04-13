@@ -14,8 +14,7 @@ return new class extends Migration
         Schema::create('inventories', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('variant_id')->constrained()->onDelete('cascade');
-            $table->string('bought_date');
+            $table->foreignId('item_id')->constrained()->onDelete('cascade');
             $table->boolean('state')->default(false);
             $table->timestamps();
         });

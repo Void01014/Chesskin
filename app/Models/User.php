@@ -10,7 +10,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable([
+    'name',
+    'email',
+    'password',
+    'equipped_board_id',
+    'equipped_theme',
+    'custom_pieces',
+    'credits',
+    'isAdmin',
+])]
+
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -27,6 +37,14 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'isAdmin' => 'boolean',
+            'custom_pieces' => 'array',
         ];
+    }
+
+    public function inventory()
+    {
+        return $this->belongsToMany(Item::class, 'item_user')
+            ->withTimestamps();
     }
 }

@@ -30,7 +30,7 @@ Route::middleware('auth')->group(function () {
     Route::get('play', [PlayController::class, 'index'])->name('play');
 
 
-    Route::get('shop', [StoreController::class, 'edit'])->name('shop');
+    Route::get('shop', [StoreController::class, 'index'])->name('shop');
     Route::get('puzzle', [ProfileController::class, 'edit'])->name('puzzles');
 });
 

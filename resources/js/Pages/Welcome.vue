@@ -24,7 +24,7 @@ defineProps({
 </script>
 
 <template>
-    <div class="bg-[#050505] text-white min-h-screen selection:bg-white selection:text-black overflow-x-hidden">
+    <div class="bg-[#050505] text-white w-full selection:bg-white selection:text-black">
 
         <div
             class="fixed top-[-10%] right-[-10%] w-[500px] h-[500px] bg-white/5 blur-[120px] rounded-full pointer-events-none">
@@ -37,10 +37,13 @@ defineProps({
 
         <main class="relative pt-56 pb-20 px-6 flex flex-col items-center text-center">
 
-            <div class="absolute top-40 flex gap-4 opacity-10 pointer-events-none">
-                <div class="w-32 h-32 border border-white rotate-12 rounded-xl"></div>
-                <div class="w-32 h-32 border border-white -rotate-12 rounded-xl bg-white/10"></div>
-                <div class="w-32 h-32 border border-white rotate-6 rounded-xl"></div>
+            <div class="absolute top-40 flex gap-4 opacity-50 pointer-events-none">
+                <img src="/assets/skins/ace_attourney/white-rook.svg"
+                    class="w-32 h-32  rotate-12 rounded-xl bg-white/10" />
+                <img src="/assets/skins/ace_attourney/black-pawn.svg"
+                    class="w-32 h-32  -rotate-12 rounded-xl bg-white/10" />
+                <img src="/assets/skins/ace_attourney/white-queen.svg"
+                    class="w-32 h-32  rotate-6 rounded-xl bg-white/10" />
             </div>
 
             <h1 class="text-6xl md:text-8xl font-black uppercase tracking-tighter mb-6">
@@ -78,7 +81,6 @@ defineProps({
         </main>
 
         <footer class="py-20 text-center opacity-30">
-            <p class="text-[9px] uppercase tracking-[0.5em]">Chesskin // Digital Craft for the 64 Squares</p>
         </footer>
     </div>
 </template>
@@ -86,19 +88,5 @@ defineProps({
 <style scoped>
 .nav-link {
     @apply text-[10px] uppercase tracking-[0.2em] text-gray-500 hover:text-white transition-all duration-300;
-}
-
-/* Subtly moving background for that "Nova" energy */
-main::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 150%;
-    height: 150%;
-    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-    background-size: 60px 60px;
-    z-index: -1;
 }
 </style>

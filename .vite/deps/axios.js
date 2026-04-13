@@ -1,0 +1,2 @@
+import { _ as axios, a as CancelToken, c as VERSION, d as getAdapter, f as isAxiosError, g as toFormData, h as spread, i as Cancel, l as all, m as mergeConfig, n as AxiosError, o as CanceledError, p as isCancel, r as AxiosHeaders, s as HttpStatusCode, t as Axios, u as formToJSON } from "./axios-BBe5FVqT.js";
+export { Axios, AxiosError, AxiosHeaders, Cancel, CancelToken, CanceledError, HttpStatusCode, VERSION, all, axios as default, formToJSON, getAdapter, isAxiosError, isCancel, mergeConfig, spread, toFormData };
