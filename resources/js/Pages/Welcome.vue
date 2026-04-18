@@ -33,7 +33,7 @@ defineProps({
             class="fixed bottom-[-5%] left-[-5%] w-[400px] h-[400px] bg-white/5 blur-[100px] rounded-full pointer-events-none">
         </div>
 
-        <Navbar :user="auth.user" />
+        <Navbar :user="auth.user"/>
 
         <main class="relative pt-56 pb-20 px-6 flex flex-col items-center text-center">
 

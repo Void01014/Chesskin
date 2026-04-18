@@ -41,7 +41,7 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'equipped_board_id' => 38,
+            'equipped_board_id' => 13,
             'equipped_theme' => 'Classic',
             'custom_pieces' => [],
             'isAdmin' => false,

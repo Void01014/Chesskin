@@ -9,11 +9,8 @@ class Bundle extends Model
 {
     protected $fillable = ['name', 'price', 'description'];
 
-    /**
-     * The items that belong to the bundle.
-     */
-    public function items(): BelongsToMany
+    public function items()
     {
-        return $this->belongsToMany(Item::class);
+        return $this->hasMany(Item::class);
     }
 }

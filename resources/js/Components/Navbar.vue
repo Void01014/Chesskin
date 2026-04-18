@@ -1,9 +1,10 @@
 <script setup>
+import { Link, usePage } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
-import { Link, usePage } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
 
 const showingNavigationDropdown = ref(false);
 
@@ -33,15 +34,15 @@ const user = computed(() => page.props.auth.user)
                 <NavLink :href="route('puzzles')" :active="route().current('puzzles')">
                     Puzzles
                 </NavLink>
-                <NavLink :href="route('profile.edit')" :active="route().current('profile.edit')">
+                <NavLink :href="route('inventory')" :active="route().current('inventory')">
                     Inventory
                 </NavLink>
             </div>
 
             <div class="hidden sm:ms-6 sm:flex sm:items-center">
-                <div class="relative ms-3">
+                <div v-if="user" class="relative ms-3">
                     <Dropdown align="right" width="48">
-                        <template #trigger>
+                        <template #trigger v-if="user">
                             <span class="inline-flex rounded-md">
                                 <button type="button"
                                     class="inline-flex items-center rounded-xl border border-white/5 bg-white/5 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-gray-400 transition duration-150 ease-in-out hover:text-white hover:bg-white/10 focus:outline-none">
@@ -71,7 +72,22 @@ const user = computed(() => page.props.auth.user)
                         </template>
                     </Dropdown>
                 </div>
+                <div v-else class="flex gap-3">
+                    <a :href="route('login')">
+                        <PrimaryButton class="text-white bg-black ring-1 ring-white hover:text-black">
+                            Login
+                        </PrimaryButton>
+                    </a>
+
+                    <a :href="route('register')">
+                        <PrimaryButton>
+                            Sign up
+                        </PrimaryButton>
+                    </a>
+                </div>
             </div>
+
+
 
             <div class="-me-2 flex items-center sm:hidden">
                 <button @click="showingNavigationDropdown = !showingNavigationDropdown"

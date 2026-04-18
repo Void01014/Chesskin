@@ -16,9 +16,9 @@ return new class extends Migration
             $table->string('name');
             $table->enum('type', ['piece', 'board']);
             $table->integer('price')->default(0);
-            $table->string('folder'); 
-            $table->string('slug'); 
-            $table->boolean('is_in_bundle')->default(false);
+            $table->string('folder');
+            $table->string('slug');
+            $table->foreignId('bundle_id')->nullable()->constrained()->onDelete('set null');
             $table->timestamps();
         });
     }

@@ -42,9 +42,19 @@ class User extends Authenticatable
         ];
     }
 
-    public function inventory()
+    public function inventories()
     {
-        return $this->belongsToMany(Item::class, 'item_user')
-            ->withTimestamps();
+        return $this->hasMany(Inventory::class);
+    }
+
+    public function items(){
+        return $this->hasManyThrough(
+            Item::class,
+            Inventory::class,
+            'user_id',
+            'id',
+            'id',
+            'item_id'
+        );
     }
 }

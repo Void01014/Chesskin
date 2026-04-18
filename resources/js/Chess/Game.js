@@ -22,7 +22,7 @@ export default class Game {
         this.state = gameState.SELECTING_PIECE;
         this.currentPlayer = 'white';
         this.humanColor = 'white';
-        
+
         this.isAiGame = mode;
         this.aiWorker = new Worker('/js/stockfish.js');
         this.aiWorker.onmessage = (event) => {
@@ -87,6 +87,8 @@ export default class Game {
 
         this.kingPositions.white = this.getKingPosition('white');
         this.kingPositions.black = this.getKingPosition('black');
+
+        this.generatePuzzle('6k1/5ppp/8/8/8/8/5PPP/4RK2 w - - 0 1')
     }
 
     //////////////////////////////////////////////
@@ -559,5 +561,83 @@ export default class Game {
             to: [8 - parseInt(toRank), fileMap[toFile]],       // Converts '4' to index 4
             promotion: promotion
         };
+    }
+
+    ////////////////////////////////
+    //puzzles
+
+
+    generatePuzzle(fen) {
+        const pieces = {
+            'p': Pawn,
+            'n': Knight,
+            'b': Bishop,
+            'k': King,
+            'q': Queen,
+            'r': Rook,
+            'e': null,
+        }
+
+        const split_fen = fen.split('/');
+        let expanded_fen = [
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+        ];
+
+        const puzzle_pos = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ]
+
+        split_fen.forEach((row, r) => {
+            Array.from(row).forEach((piece, c) => {
+                if (piece >= '0' && piece <= '9') {
+                    for (let i = 0; i < Number(piece); i++) {
+                        expanded_fen[r] += 'e';
+                    }
+                } else {
+                    expanded_fen[r] += piece
+                }
+            })
+        })
+
+        for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 8; j++) {
+                const piece = expanded_fen[i][j];
+
+                if (piece === 'e') {
+                    puzzle_pos[i][j] = null;
+                } else {
+                    const isWhite = piece === piece.toUpperCase();
+                    const chosenClass = pieces[piece.toLowerCase()];
+
+                    puzzle_pos[i][j] = new chosenClass(isWhite ? 'white' : 'black');
+                }
+            }
+        }
+
+        console.log(expanded_fen);
+        console.log(puzzle_pos);
+
+        this.board.grid = puzzle_pos;
+        console.log(this.kingPositions);
+        
+        this.kingPositions.white = this.getKingPosition('white');
+        this.kingPositions.black = this.getKingPosition('black');
+        
+        console.log(this.kingPositions);
+
     }
 }
