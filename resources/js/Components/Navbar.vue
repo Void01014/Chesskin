@@ -25,6 +25,9 @@ const user = computed(() => page.props.auth.user)
             </div>
 
             <div class="hidden md:flex items-center gap-10">
+                <NavLink :href="route('welcome')" :active="route().current('welcome')">
+                    Home
+                </NavLink>
                 <NavLink :href="route('shop')" :active="route().current('shop')">
                     Shop
                 </NavLink>
@@ -74,7 +77,7 @@ const user = computed(() => page.props.auth.user)
                 </div>
                 <div v-else class="flex gap-3">
                     <a :href="route('login')">
-                        <PrimaryButton class="text-white bg-black ring-1 ring-white hover:text-black">
+                        <PrimaryButton class="text-white !bg-black ring-1 ring-white hover:text-whitehover:text-black">
                             Login
                         </PrimaryButton>
                     </a>

@@ -25,13 +25,36 @@ const choosing_op = ref(true);
 
 const game = ref(null);
 
-const startGame = (options) => {
-    const mode = options.mode === "pvp" ? false : true;
-    const difficulty = skillLevels[options.difficulty];
-    const timeLimit = options.timeLimit;
+const startGame = async (options) => {
+    if (game.value) {
+        const result = await Swal.fire({
+            title: 'Restart game?',
+            text: "Your progress will be lost",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, restart it',
+            cancelButtonText: 'Cancel'
+        })
 
-    choosing_op.value = false;
-    game.value = reactive(new Game(mode, difficulty, timeLimit, false, null, null));
+        if (result.isConfirmed) {
+            const mode = options.mode === "pvp" ? false : true;
+            const difficulty = skillLevels[options.difficulty];
+            const timeLimit = options.timeLimit;
+
+            choosing_op.value = false;
+            game.value = reactive(new Game(mode, difficulty, timeLimit, false, null, null));
+        }
+
+
+    } else {
+        const mode = options.mode === "pvp" ? false : true;
+        const difficulty = skillLevels[options.difficulty];
+        const timeLimit = options.timeLimit;
+
+        choosing_op.value = false;
+        game.value = reactive(new Game(mode, difficulty, timeLimit, false, null, null));
+    }
+
 };
 
 const stopGame = async () => {
@@ -48,7 +71,7 @@ const stopGame = async () => {
         game.value = null
         choosing_op.value = true
     }
-}   
+}
 
 const options = ref({
     mode: 'pvp',
@@ -127,11 +150,11 @@ const times = ['1', '3', '5', '10', '30'];
                 </div>
             </div>
             <div v-if="!choosing_op"
-                class="flex flex-col sm:flex-row items-center sm:h-full w-[85vw] ring sm:w-[115vh] gap-4 ">
+                class="flex flex-col sm:flex-row items-center sm:h-full w-[85vw] sm:w-[115vh] gap-4 ">
                 <div class="flex justify-center w-full">
                     <ChessBoard :game="game" skin="ace_attourney"></ChessBoard>
                 </div>
-                <div class="flex items-end sm:h-full ring gap-3">
+                <div class="flex items-end sm:h-full gap-3">
                     <PrimaryButton @click="startGame(options)" class="h-5">Restart</PrimaryButton>
                     <PrimaryButton @click="stopGame()" class="h-5">stop</PrimaryButton>
                 </div>

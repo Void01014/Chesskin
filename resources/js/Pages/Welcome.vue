@@ -21,6 +21,13 @@ defineProps({
     },
 });
 
+const items = [
+    { name: 'Cibernetic Pawn', folder: 'cibernetic', type: 'pawn' },
+    { name: 'Marble Pawn', folder: 'marble', type: 'pawn' },
+    { name: 'Ace Attourney Bishop', folder: 'ace_attourney', type: 'bishop' },
+    { name: 'Ace Attourney Knight', folder: 'ace_attourney', type: 'knight' },
+]
+
 </script>
 
 <template>
@@ -33,16 +40,15 @@ defineProps({
             class="fixed bottom-[-5%] left-[-5%] w-[400px] h-[400px] bg-white/5 blur-[100px] rounded-full pointer-events-none">
         </div>
 
-        <Navbar :user="auth.user"/>
+        <Navbar :user="auth.user" />
 
         <main class="relative pt-56 pb-20 px-6 flex flex-col items-center text-center">
 
             <div class="absolute top-40 flex gap-4 opacity-50 pointer-events-none">
                 <img src="/assets/skins/ace_attourney/white-rook.svg"
                     class="w-32 h-32  rotate-12 rounded-xl bg-white/10" />
-                <img src="/assets/skins/ace_attourney/black-pawn.svg"
-                    class="w-32 h-32  -rotate-12 rounded-xl bg-white/10" />
-                <img src="/assets/skins/ace_attourney/white-queen.svg"
+                <img src="/assets/skins/marble/white-pawn.svg" class="w-32 h-32  -rotate-12 rounded-xl bg-white/10" />
+                <img src="/assets/skins/ace_attourney/black-queen.svg"
                     class="w-32 h-32  rotate-6 rounded-xl bg-white/10" />
             </div>
 
@@ -58,26 +64,39 @@ defineProps({
             </p>
 
             <div class="flex flex-col md:flex-row gap-4">
-                <PrimaryButton class="!px-16 !py-6 !text-sm shadow-[0_0_30px_rgba(255,255,255,0.1)]">
-                    Start Customizing
-                </PrimaryButton>
-
                 <Link href="/shop"
-                    class="px-16 py-6 rounded-2xl border border-white/5 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-white/5 transition-all flex items-center justify-center">
+                    class="bg-white/90 text-black px-16 py-6 rounded-2xl !text-sm shadow-[0_0_30px_rgba(255,255,255,0.1)] uppercase tracking-[0.3em] font-bold hover:bg-white hover:scale-105 transition-all duration-1000 flex items-center justify-center">
+                    Start Customizing
+                </Link>
+                
+                <Link href="/inventory"
+                    class="px-16 py-6 rounded-2xl border-2 border-white/20 text-sm uppercase tracking-[0.3em] font-bold hover:bg-white/5 hover:scale-105 transition-all duration-1000 flex items-center justify-center">
                     Browse Collection
                 </Link>
             </div>
 
             <div class="mt-32 grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-6xl">
-                <div v-for="i in 4" :key="i"
-                    class="aspect-square rounded-3xl border border-white/5 bg-white/[0.02] p-4 flex flex-col justify-end items-start group hover:border-white/20 transition-all">
-                    <div
-                        class="w-full h-full bg-gradient-to-b from-white/10 to-transparent rounded-2xl mb-4 group-hover:scale-95 transition-transform duration-500">
+                <div v-for="item in items" :key="item.folder"
+                    class="aspect-square rounded-3xl border border-white/5 bg-white/[0.02] p-4 flex flex-col justify-center items-center group hover:border-white/20 transition-all">
+
+                    <div class="relative w-24 h-24 group-hover:scale-110 transition-transform duration-500 ease-out">
+
+                        <img :src="`/assets/skins/${item.folder}/black-${item.type}.svg`" alt=""
+                            class="absolute inset-0 w-full h-full opacity-20" />
+
+                        <img :src="`/assets/skins/${item.folder}/white-${item.type}.svg`" alt=""
+                            class="absolute inset-0 w-full h-full object-contain"
+                            style="clip-path: polygon(0 0, 100% 0, 100% 100%, 0 0); -webkit-clip-path: polygon(0 0, 100% 0, 0 100%);" />
+
                     </div>
-                    <span class="text-[9px] uppercase tracking-widest text-gray-600">Theme 00{{ i }}</span>
-                    <span class="text-[11px] font-bold uppercase tracking-widest">Variant Skin</span>
+
+                    <span
+                        class="mt-4 text-white/50 text-xs font-medium uppercase tracking-widest group-hover:text-white transition-colors">
+                        {{ item.name }}
+                    </span>
                 </div>
             </div>
+
         </main>
 
         <footer class="py-20 text-center opacity-30">
