@@ -1,12 +1,12 @@
 <script setup>
 import { Head, usePage, router } from '@inertiajs/vue3';
-import { ref, computed, reactive, watch } from 'vue'; // Added watch
+import { ref, computed, reactive, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Navbar from '@/Components/Navbar.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import Game from '@/Chess/Game';
 import ChessBoard from '@/Components/ChessBoard.vue';
-import axios from 'axios'; // For saving progress
+import axios from 'axios';
 
 const props = defineProps({
     puzzles: Array,
@@ -19,13 +19,14 @@ const user = computed(() => page.props.auth.user);
 const activePuzzle = ref(null);
 const isFading = ref(false);
 const puzzle_data = ref({
+    id: null,
     level: 0,
     difficulty: 0
 });
 
 const timer = ref(0);
+const puzzleInterval = ref(null);
 
-// Logic to determine if a level is solved, playable, or locked
 const getPuzzleStatus = (id) => {
     if (props.solvedPuzzleIds.includes(id)) return 'solved';
     const firstUnsolved = props.puzzles.find(p => !props.solvedPuzzleIds.includes(p.id));
@@ -33,11 +34,17 @@ const getPuzzleStatus = (id) => {
     return 'locked';
 };
 
-const startPuzzle = (puzzle, level) => {
+const startPuzzle = (id, puzzle, level) => {
     const status = getPuzzleStatus(puzzle.id);
     if (status === 'locked') return;
 
+    if (puzzleInterval.value) {
+        clearInterval(puzzleInterval.value);
+    }
+
     isFading.value = true;
+    
+    puzzle_data.value.id = id;
     puzzle_data.value.level = level + 1;
     puzzle_data.value.difficulty = puzzle.difficulty;
 
@@ -50,17 +57,24 @@ const startPuzzle = (puzzle, level) => {
         puzzle.solution
     ));
 
-    const intervalId = setInterval(() => {
+    console.log(activePuzzle);
+
+
+    timer.value = 0;
+
+    puzzleInterval.value = setInterval(() => {
         timer.value++;
         console.log(`Elapsed time: ${timer.value} seconds`);
     }, 1000);
-
 };
 
 watch(() => activePuzzle.value?.puzzleCompleted, (completed) => {
     if (completed) {
-        router.post(route('puzzles.complete', { puzzle: props.puzzles.find(p => p.id).id }), {
-            solve_time: "00:00:00",
+        console.log('id:');
+        console.log(puzzle_data.value.id);
+        
+        router.post(route('puzzle.completed', { puzzle: puzzle_data.value.id }), {
+            solve_time: timer.value,
         }, {
             preserveScroll: true,
             onSuccess: () => console.log("Progress saved to database")
@@ -88,7 +102,7 @@ watch(() => activePuzzle.value?.puzzleCompleted, (completed) => {
             <h2 class="text-4xl font-bold text-white mb-8">Tactics Trainer</h2>
 
             <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
-                <div v-for="(puzzle, index) in puzzles" :key="puzzle.id" @click="startPuzzle(puzzle, index)"
+                <div v-for="(puzzle, index) in puzzles" :key="puzzle.id" @click="startPuzzle(puzzle.id, puzzle, index)"
                     class="relative aspect-square rounded-3xl border transition-all duration-300 flex flex-col items-center justify-center cursor-pointer group"
                     :class="[
                         getPuzzleStatus(puzzle.id) === 'solved' ? 'bg-green-500/10 border-green-500/30 hover:border-green-500/50' :
@@ -119,16 +133,25 @@ watch(() => activePuzzle.value?.puzzleCompleted, (completed) => {
             </div>
         </div>
 
-        <div v-else class="fixed inset-0 bg-zinc-950 z-50 p-8 flex items-center justify-center gap-12">
-
-            <div class="shadow-2xl shadow-black/50 border-8 border-white/5 rounded-lg overflow-hidden">
-                <ChessBoard :game="activePuzzle" skin="ace_attourney" />
-            </div>
-
-            <div class="w-96 text-white flex flex-col h-[640px] justify-between py-4">
+        <div v-else
+            class="fixed inset-0 bg-zinc-950 z-50 p-8 flex flex-col sm:flex-row items-center justify-center gap-12">
+            <div class="w-96 text-white flex flex-col h-[640px] justify-start sm:w-[35vw] py-4">
                 <div>
-                    <h2 class="text-4xl font-black mb-2 uppercase tracking-tight">Level {{ puzzle_data.level }}</h2>
-                    <p class="text-gray-400 font-mono text-sm mb-8">Difficulty: {{ puzzle_data.difficulty }}</p>
+                    <div class="flex">
+                        <div>
+                            <h2 class="text-4xl font-black mb-2 uppercase tracking-tight">Level {{ puzzle_data.level }}
+                            </h2>
+                            <p class="text-gray-400 font-mono text-sm mb-8">Difficulty: {{ puzzle_data.difficulty }}</p>
+                        </div>
+                        <PrimaryButton @click="activePuzzle = null; isFading = false"
+                            class="ml-auto h-10 w-10 !justify-center !p-0 !rounded-2xl opacity-70 hover:opacity-100 transition-opacity">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                                stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
+                            </svg>
+                        </PrimaryButton>
+                    </div>
 
                     <div class="space-y-4">
                         <div v-if="activePuzzle.puzzleFailed"
@@ -145,12 +168,7 @@ watch(() => activePuzzle.value?.puzzleCompleted, (completed) => {
                     </div>
                 </div>
 
-                <div class="space-y-3">
-                    <PrimaryButton @click="activePuzzle = null; isFading = false"
-                        class="w-full !justify-center !py-4 !rounded-2xl opacity-70 hover:opacity-100 transition-opacity">
-                        Quit Puzzle
-                    </PrimaryButton>
-                </div>
+                <ChessBoard :game="activePuzzle" skin="ace_attourney" class="w-full" />
             </div>
         </div>
     </AuthenticatedLayout>

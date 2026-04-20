@@ -12,9 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('puzzles_user', function (Blueprint $table) {
+            $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('puzzle_id')->constrained()->onDelete('cascade');
             $table->unsignedInteger('solve_time');
+            $table->timestamps();
+            
             $table->primary(['user_id', 'puzzle_id']);
         });
     }

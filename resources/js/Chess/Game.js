@@ -64,7 +64,7 @@ export default class Game {
         this.puzzleFailed = false;
         this.puzzleSolution = puzzleSolution ?? [];
         this.puzzle_played_moves = []
-        if (ispuzzle) {
+        if (ispuzzle) {            
             this.generatePuzzle(puzzlePosition)
         } else {
             this.initializeBoard();
@@ -139,10 +139,7 @@ export default class Game {
 
             this.validMovesForSelected = selectedPiece.getPotentialMoves(moveContext);
 
-            // alert();
-
             this.board.RenderMoves(this.validMovesForSelected)
-            // alert();
         } else {
             // console.log("Empty square or wrong color!");
         }
@@ -349,6 +346,7 @@ export default class Game {
 
             if (this.puzzle_played_moves.length === this.puzzleSolution.length) {
                 console.log("Puzzle solved!");
+                this.puzzleCompleted = true;
             }
         } else {
             console.log("Wrong move");

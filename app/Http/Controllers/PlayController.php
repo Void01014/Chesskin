@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Puzzle;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -26,5 +27,31 @@ class PlayController extends Controller
             'puzzles' => $puzzles,
             'solvedPuzzleIds' => $solvedPuzzleIds
         ]);
+    }
+
+    public function completed(Request $request, Puzzle $puzzle)
+    {
+        $user = $request->user();
+
+        // Validate input
+        $data = $request->validate([
+            'solve_time' => ['required', 'integer', 'min:0'],
+        ]);
+
+        // Prevent duplicate completion
+        if ($user->puzzles()->where('puzzle_id', $puzzle->id)->exists()) {
+            return response()->json([
+                'message' => 'Already completed'
+            ], 200);
+        }
+
+        // Attach puzzle to user (pivot table)
+        $user->puzzles()->attach($puzzle->id, [
+            'solve_time' => $data['solve_time'],
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return redirect()->back();
     }
 }
