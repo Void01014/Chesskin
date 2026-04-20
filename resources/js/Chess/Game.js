@@ -17,7 +17,7 @@ const gameState = {
 
 export default class Game {
 
-    constructor(mode, difficulty, timeLimit) {
+    constructor(mode, difficulty, timeLimit, ispuzzle, puzzlePosition, puzzleSolution) {
         this.board = new Board(this);
         this.state = gameState.SELECTING_PIECE;
         this.currentPlayer = 'white';
@@ -56,7 +56,21 @@ export default class Game {
             black: ['q', 'k']
         }
 
-        this.initializeBoard();
+        //////////////////////
+        //puzzles        
+
+        this.ispuzzle = ispuzzle;
+        this.puzzleCompleted = false;
+        this.puzzleFailed = false;
+        this.puzzleSolution = puzzleSolution ?? [];
+        this.puzzle_played_moves = []
+        if (ispuzzle) {
+            this.generatePuzzle(puzzlePosition)
+        } else {
+            this.initializeBoard();
+        }
+
+
     }
 
     initializeBoard() {
@@ -87,8 +101,6 @@ export default class Game {
 
         this.kingPositions.white = this.getKingPosition('white');
         this.kingPositions.black = this.getKingPosition('black');
-
-        this.generatePuzzle('6k1/5ppp/8/8/8/8/5PPP/4RK2 w - - 0 1')
     }
 
     //////////////////////////////////////////////
@@ -157,7 +169,16 @@ export default class Game {
         }
 
         if (this.sandboxValidation(this.selectedSquare.row, this.selectedSquare.col, row, col, selectedPiece, opponentColor)) {
-            this.executeMove(this.selectedSquare.row, this.selectedSquare.col, row, col);
+            //if puzzle, check if the sequence is correct
+            if (this.ispuzzle) {
+                const valid_puzzle_move = this.puzzleValidation(this.selectedSquare.row, this.selectedSquare.col, row, col);
+                if (valid_puzzle_move) {
+                    this.executeMove(this.selectedSquare.row, this.selectedSquare.col, row, col);
+                }
+            }else{
+                this.executeMove(this.selectedSquare.row, this.selectedSquare.col, row, col);
+            }
+
         } else {
             this.finalizeTurn(true);
         }
@@ -188,18 +209,15 @@ export default class Game {
             const [epRow, epCol] = this.enPassantTarget;
             const captureRow = selectedPiece.color === 'white' ? endRow + 1 : endRow - 1;
 
-            // If we just moved diagonally onto the column where a vulnerable pawn was
             if (endRow === (selectedPiece.color === 'white' ? 2 : 5) && endCol === epCol) {
                 this.board.setPiece(epRow, epCol, null);
             }
         }
 
-        // 3. Update the Target for the NEXT turn
-        // This MUST happen for every move to ensure old targets are cleared
         if (selectedPiece.constructor.name === 'Pawn' && Math.abs(startRow - endRow) === 2) {
             this.enPassantTarget = [endRow, endCol];
         } else {
-            this.enPassantTarget = null; // This clears it if the move wasn't a double-step
+            this.enPassantTarget = null;
         }
 
         if (selectedPiece.xtraMove !== undefined) {
@@ -258,7 +276,7 @@ export default class Game {
             }
         }
 
-        this.check_n_checkmate();
+        this.check_n_checkmate(startRow, startCol, endRow, endCol);
 
         // console.log(`Moved to ${endRow},${endCol}`);
     }
@@ -267,15 +285,6 @@ export default class Game {
         const opponentColor = this.currentPlayer === 'white' ? 'black' : 'white';
         const is_check = this.isCheck(this.currentPlayer);
         const enemy_have_legal_moves = this.everyPieceSandbox(this.board.grid, this.currentPlayer);
-
-        if (is_check) {
-            const kingPos = this.kingPositions[opponentColor];
-            const enemyKingElem = document.querySelector(`.square[data-row="${kingPos.r}"][data-col="${kingPos.c}"]`);
-
-            if (enemyKingElem) {
-                enemyKingElem.style.backgroundColor = 'red';
-            }
-        }
 
         if (!enemy_have_legal_moves) {
             this.getPotentialCheckMoves(this.currentPlayer);
@@ -289,7 +298,7 @@ export default class Game {
                 row: op_kingRow,
                 col: op_kingCol,
                 withVertical: true,
-                friendlyFire: true,
+                friendlyFire: false,
                 PotentialCheckMoves: this.PotentialCheckMoves,   /////special for the king
                 enPassantTarget: this.enPassantTarget,           /////special for the pawn
                 castling: this.castling                          /////special for King/Rook
@@ -297,7 +306,7 @@ export default class Game {
 
             const kingMoves = op_king.getPotentialMoves(moveContext);
 
-            if (is_check && kingMoves.length === 0) {
+            if (is_check) {
                 alert('checkmate');
             } else if (kingMoves.length === 0) {
                 alert('stalemate');
@@ -308,6 +317,48 @@ export default class Game {
     }
 
     ///////////////////////////////////
+
+    puzzleValidation(startRow, startCol, endRow, endCol) {
+        const currentIndex = this.puzzle_played_moves.length;
+        const expectedMove = this.puzzleSolution[currentIndex];
+
+        console.log("THIS IS:", this);
+        console.log(this.puzzleSolution);
+        // console.log('index: ' + currentIndex);
+        // console.log('exMove: ' + expectedMove);
+
+
+        if (!expectedMove) {
+            console.log("Puzzle already completed or no more moves expected");
+            return;
+        }
+
+        const [expStartRow, expStartCol, expEndRow, expEndCol] = expectedMove;
+
+        console.log(expStartRow, expStartCol, expEndRow, expEndCol);
+
+
+        if (
+            startRow === expStartRow &&
+            startCol === expStartCol &&
+            endRow === expEndRow &&
+            endCol === expEndCol
+        ) {
+            this.puzzle_played_moves.push([startRow, startCol, endRow, endCol]);
+            console.log("Correct move");
+
+            if (this.puzzle_played_moves.length === this.puzzleSolution.length) {
+                console.log("Puzzle solved!");
+            }
+        } else {
+            console.log("Wrong move");
+
+            this.puzzle_played_moves = [];
+            this.finalizeTurn(true);
+            return false;
+        }
+        return true;
+    }
 
     getKingPosition(color) {
         let kingPosition = [];
@@ -394,12 +445,12 @@ export default class Game {
 
     everyPieceSandbox(grid, color) {
         const otherColor = color === 'white' ? 'black' : 'white';
+
         for (const [r, row] of grid.entries()) {
             for (const [c, piece] of row.entries()) {
                 if (piece && piece.color === otherColor) {
                     if (piece.constructor.name === "King") {
                         this.getPotentialCheckMoves(color);
-                        // this.getPotentialCheckMoves(color, this.PotentialCheckMoves);
                     }
 
                     const moveContext = {
@@ -407,7 +458,7 @@ export default class Game {
                         row: r,
                         col: c,
                         withVertical: true,
-                        friendlyFire: true,
+                        friendlyFire: false,
                         PotentialCheckMoves: this.PotentialCheckMoves,   /////special for the king
                         enPassantTarget: this.enPassantTarget,           /////special for the pawn
                         castling: this.castling                          /////special for King/Rook
@@ -415,11 +466,16 @@ export default class Game {
 
                     const potentialMoves = piece.getPotentialMoves(moveContext);
 
-                    const threatens = potentialMoves.some(([mrow, mcol]) =>
-                        this.sandboxValidation(r, c, mrow, mcol, piece, color)
-                    );
+                    let canMove = false;
 
-                    if (threatens) return true;
+                    for (const [mrow, mcol] of potentialMoves) {
+                        if (this.sandboxValidation(r, c, mrow, mcol, piece, color)) {
+                            console.log(`Valid move: (${r}, ${c}) -> (${mrow}, ${mcol})`);
+                            canMove = true;
+                        }
+                    }
+
+                    if (canMove) return true;
                 }
             };
         };
@@ -526,6 +582,17 @@ export default class Game {
         return `${col}${row}`;
     }
 
+    algebraicToCoords(square) {
+        if (!square || square === '-') return null;
+
+        const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+
+        const col = files.indexOf(square[0]);
+        const row = 8 - parseInt(square[1]);
+
+        return { row, col };
+    }
+
     async getAIMove() {
         const fen = this.generateFEN();
 
@@ -568,6 +635,8 @@ export default class Game {
 
 
     generatePuzzle(fen) {
+        this.pendingPromotion = null;
+
         const pieces = {
             'p': Pawn,
             'n': Knight,
@@ -578,66 +647,65 @@ export default class Game {
             'e': null,
         }
 
-        const split_fen = fen.split('/');
-        let expanded_fen = [
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-        ];
+        const [placement, turn, castling, enPassant, halfmove, fullmove] = fen.split(' ')
+        const rows = placement.split('/')
 
-        const puzzle_pos = [
-            [],
-            [],
-            [],
-            [],
-            [],
-            [],
-            [],
-            [],
-        ]
+        if (rows.length !== 8) throw new Error('Invalid FEN')
 
-        split_fen.forEach((row, r) => {
-            Array.from(row).forEach((piece, c) => {
+        let expanded_fen = Array(8).fill('')
+        const puzzle_pos = Array.from({ length: 8 }, () => Array(8).fill(null))
+
+        rows.forEach((row, r) => {
+            Array.from(row).forEach(piece => {
                 if (piece >= '0' && piece <= '9') {
-                    for (let i = 0; i < Number(piece); i++) {
-                        expanded_fen[r] += 'e';
-                    }
+                    expanded_fen[r] += 'e'.repeat(Number(piece))
                 } else {
                     expanded_fen[r] += piece
                 }
             })
+
+            if (expanded_fen[r].length !== 8) {
+                throw new Error('Invalid FEN row length')
+            }
         })
 
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
-                const piece = expanded_fen[i][j];
+                const piece = expanded_fen[i][j]
 
                 if (piece === 'e') {
-                    puzzle_pos[i][j] = null;
+                    puzzle_pos[i][j] = null
                 } else {
-                    const isWhite = piece === piece.toUpperCase();
-                    const chosenClass = pieces[piece.toLowerCase()];
+                    const isWhite = piece === piece.toUpperCase()
+                    const chosenClass = pieces[piece.toLowerCase()]
 
-                    puzzle_pos[i][j] = new chosenClass(isWhite ? 'white' : 'black');
+                    if (!chosenClass) {
+                        throw new Error(`Unknown piece: ${piece}`)
+                    }
+
+                    puzzle_pos[i][j] = new chosenClass(isWhite ? 'white' : 'black')
                 }
             }
         }
 
-        console.log(expanded_fen);
-        console.log(puzzle_pos);
+        this.board.grid = puzzle_pos
 
-        this.board.grid = puzzle_pos;
-        console.log(this.kingPositions);
-        
-        this.kingPositions.white = this.getKingPosition('white');
-        this.kingPositions.black = this.getKingPosition('black');
-        
-        console.log(this.kingPositions);
+        this.turn = turn === 'w' ? 'white' : 'black'
 
+        this.castling = { white: [], black: [] }
+        if (castling !== '-') {
+            if (castling.includes('K')) this.castling.white.push('K')
+            if (castling.includes('Q')) this.castling.white.push('Q')
+            if (castling.includes('k')) this.castling.black.push('k')
+            if (castling.includes('q')) this.castling.black.push('q')
+        }
+
+        this.enPassantTarget = this.algebraicToCoords(enPassant)
+
+        this.halfmoveClock = parseInt(halfmove)
+        this.fullmoveNumber = parseInt(fullmove)
+
+        this.kingPositions.white = this.getKingPosition('white')
+        this.kingPositions.black = this.getKingPosition('black')
     }
 }

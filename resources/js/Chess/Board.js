@@ -17,4 +17,17 @@ export default class Board {
     RenderMoves(moves) {
         this.highlightedMoves = moves;
     }
+
+    renderConsole() {
+        const display = this.grid.map(row =>
+            row.map(piece => {
+                if (!piece) return " . ";
+                const char = piece.constructor.name[0];
+                return piece.color === 'white' ? ` ${char.toUpperCase()} ` : ` ${char.toLowerCase()} `;
+
+            }).join("")
+        ).join("\n");
+
+        console.log(display);
+    }
 }

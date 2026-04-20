@@ -4,7 +4,7 @@ import { Head } from '@inertiajs/vue3';
 import { ref, reactive, onMounted } from 'vue';
 import Game from '@/Chess/Game';
 
-const game = reactive(new Game());
+const game = reactive(new Game('pvai', 'medium', null, true, '6k1/5ppp/8/8/8/8/5PPP/4RK2 w - - 0 1', [[7, 4, 0, 4]]));
 
 </script>
 
@@ -28,12 +28,12 @@ const game = reactive(new Game());
         <div v-if="game.state === 'PROMOTION_PENDING'" id="overlay" class="flex justify-center items-center absolute h-full w-full bg-[#0000006d]">
             <section id="promotionModal"
                 class="absolute flex items-center justify-center bg-white gap-2 h-[100px] w-[440px] p-1 rounded-xl shadow-[0_0_10px_gray]">
-                <img @click="game.promote('Queen', game.currentPlayer)" id="Queen" src="assets/skins/blue_suit/white-queen.svg" alt=""
+                <img @click="game.promote('Queen', game.currentPlayer)" id="Queen" src="assets/skins/ace_attourney/white-queen.svg" alt=""
                     class="piece h-[100%] cursor-pointer">
-                <img @click="game.promote('Rook', game.currentPlayer)" id="Rook" src="assets/skins/blue_suit/white-rook.svg" alt="" class="piece h-[100%] cursor-pointer">
-                <img @click="game.promote('Bishop', game.currentPlayer)" id="Bishop" src="assets/skins/blue_suit/white-bishop.svg" alt=""
+                <img @click="game.promote('Rook', game.currentPlayer)" id="Rook" src="assets/skins/ace_attourney/white-rook.svg" alt="" class="piece h-[100%] cursor-pointer">
+                <img @click="game.promote('Bishop', game.currentPlayer)" id="Bishop" src="assets/skins/ace_attourney/white-bishop.svg" alt=""
                     class="piece h-[100%] cursor-pointer">
-                <img @click="game.promote('Knight', game.currentPlayer)" id="Knight" src="assets/skins/blue_suit/white-knight.svg" alt=""
+                <img @click="game.promote('Knight', game.currentPlayer)" id="Knight" src="assets/skins/ace_attourney/white-knight.svg" alt=""
                     class="piece h-[100%] cursor-pointer">
             </section>
         </div>

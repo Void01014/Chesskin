@@ -31,7 +31,7 @@ const user = computed(() => page.props.auth.user)
                 <NavLink :href="route('play')" :active="route().current('play')">
                     Play
                 </NavLink>
-                <NavLink :href="route('puzzles')" :active="route().current('puzzles')">
+                <NavLink :href="route('puzzle')" :active="route().current('puzzle')">
                     Puzzles
                 </NavLink>
                 <NavLink :href="route('inventory')" :active="route().current('inventory')">

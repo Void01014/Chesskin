@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('puzzles', function (Blueprint $table) {
             $table->id();
-            $table->json('positions'); // Storing array as JSON
-            $table->string('color');
+            $table->string('positions');
+            $table->json('solution');
+            $table->string('player_color');
             $table->integer('difficulty');
             $table->timestamps();
         });

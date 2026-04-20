@@ -1,10 +1,13 @@
 <script setup>
+import Swal from 'sweetalert2';
 import { Head, usePage } from '@inertiajs/vue3';
 import { ref, reactive, computed } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Navbar from '@/Components/Navbar.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import Game from '@/Chess/Game';
+import ChessBoard from '@/Components/ChessBoard.vue';
+
 
 const page = usePage()
 const user = computed(() => page.props.auth.user)
@@ -18,22 +21,34 @@ const skillLevels = {
     'expert': 20
 };
 
-const choosing_op = ref(false);
+const choosing_op = ref(true);
 
 const game = ref(null);
 
 const startGame = (options) => {
-    console.log(options);
-
     const mode = options.mode === "pvp" ? false : true;
     const difficulty = skillLevels[options.difficulty];
     const timeLimit = options.timeLimit;
 
-    console.log(difficulty);
-
-    choosing_op.value = true;
-    game.value = reactive(new Game(mode, difficulty, timeLimit));
+    choosing_op.value = false;
+    game.value = reactive(new Game(mode, difficulty, timeLimit, false, null, null));
 };
+
+const stopGame = async () => {
+    const result = await Swal.fire({
+        title: 'Stop game?',
+        text: "Your progress will be lost",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, stop it',
+        cancelButtonText: 'Cancel'
+    })
+
+    if (result.isConfirmed) {
+        game.value = null
+        choosing_op.value = true
+    }
+}   
 
 const options = ref({
     mode: 'pvp',
@@ -48,12 +63,12 @@ const times = ['1', '3', '5', '10', '30'];
 
     <Head title="Play" />
 
-    <Navbar v-if="!choosing_op" :user="user" />
+    <Navbar v-if="choosing_op" :user="user" />
 
-    <AuthenticatedLayout>
+    <AuthenticatedLayout class="flex justify-center bg-black">
 
-        <div class="relative flex items-center justify-center min-h-[85vh] px-4">
-            <div v-if="!choosing_op"
+        <div class="relative flex items-center justify-center h-[85vh] aspect-square px-4">
+            <div v-if="choosing_op"
                 class="w-full max-w-sm bg-[#0f0f0f] border border-white/10 rounded-3xl shadow-2xl overflow-hidden">
 
                 <div class="p-8 pb-4 text-center">
@@ -111,36 +126,14 @@ const times = ['1', '3', '5', '10', '30'];
                     </div>
                 </div>
             </div>
-            <div v-if="choosing_op" class="flex justify-center w-max">
-                <div class="grid grid-cols-8 w-[640px] h-[640px] relative">
-                    <template v-for="(row, r) in game.board.grid" :key="'row-' + r">
-                        <div v-for="(piece, c) in row" :key="`sq-${r}-${c}`" @click="game.handleSquareClick(r, c)"
-                            :class="[
-                                'square relative flex justify-center items-center w-[80px] h-[80px]',
-                                (r + c) % 2 !== 0 ? 'bg-green-700' : 'bg-[#eeeed2]'
-                            ]">
-                            <img v-if="piece"
-                                :src="`/assets/skins/ace_attourney/${piece.color}-${piece.constructor.name.toLowerCase()}.svg`"
-                                class="piece absolute w-[90%] z-10 pointer-events-none" />
-                            <div v-if="game.board.highlightedMoves.some(m => m[0] === r && m[1] === c)"
-                                class="highlight pointer-events-none z-20">
-                            </div>
-                        </div>
-                    </template>
+            <div v-if="!choosing_op"
+                class="flex flex-col sm:flex-row items-center sm:h-full w-[85vw] ring sm:w-[115vh] gap-4 ">
+                <div class="flex justify-center w-full">
+                    <ChessBoard :game="game" skin="ace_attourney"></ChessBoard>
                 </div>
-                <div v-if="game.state === 'PROMOTION_PENDING'" id="overlay"
-                    class="flex justify-center items-center absolute h-full w-full bg-[#0000006d]">
-                    <section id="promotionModal"
-                        class="absolute flex items-center justify-center bg-white gap-2 h-[100px] w-[440px] p-1 rounded-xl shadow-[0_0_10px_gray]">
-                        <img @click="game.promote('Queen', game.currentPlayer)" id="Queen"
-                            src="assets/skins/blue_suit/white-queen.svg" alt="" class="piece h-[100%] cursor-pointer">
-                        <img @click="game.promote('Rook', game.currentPlayer)" id="Rook"
-                            src="assets/skins/blue_suit/white-rook.svg" alt="" class="piece h-[100%] cursor-pointer">
-                        <img @click="game.promote('Bishop', game.currentPlayer)" id="Bishop"
-                            src="assets/skins/blue_suit/white-bishop.svg" alt="" class="piece h-[100%] cursor-pointer">
-                        <img @click="game.promote('Knight', game.currentPlayer)" id="Knight"
-                            src="assets/skins/blue_suit/white-knight.svg" alt="" class="piece h-[100%] cursor-pointer">
-                    </section>
+                <div class="flex items-end sm:h-full ring gap-3">
+                    <PrimaryButton @click="startGame(options)" class="h-5">Restart</PrimaryButton>
+                    <PrimaryButton @click="stopGame()" class="h-5">stop</PrimaryButton>
                 </div>
             </div>
         </div>

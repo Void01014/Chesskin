@@ -35,7 +35,8 @@ Route::middleware('auth')->group(function () {
     Route::post('purchase', [StoreController::class, 'purchase'])->middleware('auth');
     Route::get('inventory', [InventoryController::class, 'index'])->middleware('auth')->name('inventory');
 
-    Route::get('puzzle', [ProfileController::class, 'edit'])->name('puzzles');
+    Route::get('puzzle', [PlayController::class, 'puzzle'])->name('puzzle');
+    Route::get('puzzleco', [PlayController::class, 'puzzle'])->name('puzzles.complete');
 });
 
 require __DIR__ . '/auth.php';

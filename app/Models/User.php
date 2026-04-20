@@ -7,6 +7,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -47,7 +48,8 @@ class User extends Authenticatable
         return $this->hasMany(Inventory::class);
     }
 
-    public function items(){
+    public function items()
+    {
         return $this->hasManyThrough(
             Item::class,
             Inventory::class,
@@ -56,5 +58,20 @@ class User extends Authenticatable
             'id',
             'item_id'
         );
+    }
+
+    public function puzzles(): BelongsToMany
+    {
+        return $this->belongsToMany(Puzzle::class, 'puzzles_user')
+            ->withPivot('solve_time')
+            ->withTimestamps();
+    }
+
+    /**
+     * Helper to get the highest solved puzzle ID
+     */
+    public function getHighestSolvedPuzzleId()
+    {
+        return $this->puzzles()->max('puzzle_id') ?? 0;
     }
 }

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('puzzles_user', function (Blueprint $table) {
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('puzzle_id')->constrained()->onDelete('cascade');
-            $table->time('solve_time');
+            $table->unsignedInteger('solve_time');
             $table->primary(['user_id', 'puzzle_id']);
         });
     }
