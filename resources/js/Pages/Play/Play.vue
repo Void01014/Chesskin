@@ -1,85 +1,136 @@
 <script setup>
 import Swal from 'sweetalert2';
-import { Head, usePage } from '@inertiajs/vue3';
+import { Head, usePage, router } from '@inertiajs/vue3';
 import { ref, reactive, computed } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Navbar from '@/Components/Navbar.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import Game from '@/Chess/Game';
 import ChessBoard from '@/Components/ChessBoard.vue';
+import GameOver from '@/Components/GameOver.vue';
 
 
 const page = usePage()
 const user = computed(() => page.props.auth.user)
 
+const { bots } = defineProps({
+    bots: Array
+})
+
+const emit = defineEmits(['rematch', 'close']);
+
+const nexusSwal = Swal.mixin({
+    background: '#18181b', // zinc-900
+    color: '#ffffff',
+    buttonsStyling: false,
+    customClass: {
+        popup: 'border border-white/10 rounded-2xl shadow-2xl backdrop-blur-sm',
+        title: 'text-3xl font-black italic tracking-tighter uppercase',
+        htmlContainer: 'text-zinc-500 text-xs uppercase tracking-widest mt-2',
+        confirmButton: 'px-10 py-3 bg-white text-black font-bold uppercase text-xs tracking-widest hover:bg-zinc-200 transition-colors rounded-lg mx-2',
+        cancelButton: 'px-10 py-3 bg-transparent text-white/50 border border-white/5 font-bold uppercase text-xs tracking-widest hover:bg-white/5 transition-all rounded-lg mx-2',
+        actions: 'mt-8'
+    },
+    showClass: {
+        popup: 'animate__animated animate__fadeIn animate__faster'
+    },
+    hideClass: {
+        popup: 'animate__animated animate__fadeOut animate__faster'
+    }
+});
+
 
 
 const skillLevels = {
-    'easy': 0,
-    'medium': 8,
-    'hard': 15,
-    'expert': 20
+    0: 'easy',
+    8: 'medium',
+    15: 'hard',
+    20: 'expert'
 };
 
 const choosing_op = ref(true);
 
 const game = ref(null);
 
-const startGame = async (options) => {
-    if (game.value) {
-        const result = await Swal.fire({
-            title: 'Restart game?',
-            text: "Your progress will be lost",
-            icon: 'warning',
+const startGame = async (options, game_ended) => {
+    if (game.value && !game_ended) {
+        const result = await nexusSwal.fire({
+            title: 'Restart Game?',
+            text: 'Current game data will be lost',
             showCancelButton: true,
-            confirmButtonText: 'Yes, restart it',
+            confirmButtonText: 'Restart',
             cancelButtonText: 'Cancel'
-        })
+        });
 
         if (result.isConfirmed) {
             const mode = options.mode === "pvp" ? false : true;
-            const difficulty = skillLevels[options.difficulty];
+            const bot_id = options.bot.id;
+            const difficulty = options.bot.difficulty;
+
             const timeLimit = options.timeLimit;
 
             choosing_op.value = false;
-            game.value = reactive(new Game(mode, difficulty, timeLimit, false, null, null));
+            game.value = reactive(new Game(mode, difficulty, timeLimit, bot_id, false, null, null));
         }
 
 
     } else {
         const mode = options.mode === "pvp" ? false : true;
-        const difficulty = skillLevels[options.difficulty];
+        const bot_id = options.bot.id;
+        const difficulty = options.bot.difficulty;
+
         const timeLimit = options.timeLimit;
 
         choosing_op.value = false;
-        game.value = reactive(new Game(mode, difficulty, timeLimit, false, null, null));
+        game.value = reactive(new Game(mode, difficulty, timeLimit, bot_id, false, null, null));
     }
 
 };
 
-const stopGame = async () => {
-    const result = await Swal.fire({
-        title: 'Stop game?',
-        text: "Your progress will be lost",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, stop it',
-        cancelButtonText: 'Cancel'
-    })
+const stopGame = async (game_ended) => {
+    if (!game_ended) {
+        const result = await nexusSwal.fire({
+            title: 'Stop Game?',
+            text: 'Your progress will be lost',
+            showCancelButton: true,
+            confirmButtonText: 'Confirm',
+            cancelButtonText: 'Cancel'
+        });
 
-    if (result.isConfirmed) {
+        if (result.isConfirmed) {
+            game.value = null
+            choosing_op.value = true
+        }
+    } else {
         game.value = null
         choosing_op.value = true
     }
+
 }
 
 const options = ref({
     mode: 'pvp',
-    difficulty: 'medium',
+    bot: {
+        id: 2,
+        difficulty: 8
+    },
     timeLimit: '10',
 });
 
 const times = ['1', '3', '5', '10', '30'];
+
+const storeGame = (game) => {
+    const mode = game.isAiGame ? 'pvai' : 'pvp';
+
+    router.post('storeGame', {
+        mode: mode,
+        bot_id: game.bot_id,
+        player_color: game.humanColor,
+        winner: game.winner,
+        moves: game.history
+    })
+}
+
 </script>
 
 <template>
@@ -120,12 +171,12 @@ const times = ['1', '3', '5', '10', '30'];
                     <div v-if="options.mode === 'pvai'" class="space-y-1">
                         <p class="text-xs font-semibold text-gray-400">AI Difficulty</p>
                         <div class="flex flex-col gap-2">
-                            <button v-for="level in Object.keys(skillLevels)" :key="level"
-                                @click="options.difficulty = level.toLowerCase()"
-                                class="py-1 rounded-lg text-xs border transition-all" :class="options.difficulty === level.toLowerCase()
+                            <button v-for="bot in bots" :key="bot.id"
+                                @click="options.bot.id = bot.id; options.bot.difficulty = bot.difficulty"
+                                class="py-1 rounded-lg text-xs border transition-all" :class="options.bot.difficulty === bot.difficulty
                                     ? 'bg-white/85 !border-gray-500 text-black'
                                     : 'bg-white/5 border-white/5 text-white'">
-                                {{ level }}
+                                {{ skillLevels[bot.difficulty] }}
                             </button>
                         </div>
                     </div>
@@ -143,7 +194,8 @@ const times = ['1', '3', '5', '10', '30'];
                     </section>
 
                     <div class="flex justify-center ">
-                        <PrimaryButton class="!w-full !text-base" @click="startGame(options)">
+                        <PrimaryButton class="!w-full !text-base"
+                            @click="startGame(options, game?.state === 'GAME_OVER')">
                             Start Match
                         </PrimaryButton>
                     </div>
@@ -152,14 +204,20 @@ const times = ['1', '3', '5', '10', '30'];
             <div v-if="!choosing_op"
                 class="flex flex-col sm:flex-row items-center sm:h-full w-[85vw] sm:w-[115vh] gap-4 ">
                 <div class="flex justify-center w-full">
-                    <ChessBoard :game="game" skin="ace_attourney"></ChessBoard>
+                    <ChessBoard :game="game" skin="ace_attourney"
+                        @game-ended="storeGame(game)"
+                        @rematch="startGame(options, game?.state === 'GAME_OVER')"
+                        @close="stopGame(game?.state === 'GAME_OVER')">
+                    </ChessBoard>
                 </div>
                 <div class="flex items-end sm:h-full gap-3">
-                    <PrimaryButton @click="startGame(options)" class="h-5">Restart</PrimaryButton>
-                    <PrimaryButton @click="stopGame()" class="h-5">stop</PrimaryButton>
+                    <PrimaryButton @click="startGame(options, game?.state === 'GAME_OVER')" class="h-5">Restart
+                    </PrimaryButton>
+                    <PrimaryButton @click="stopGame(game?.state === 'GAME_OVER')" class="h-5">stop</PrimaryButton>
                 </div>
             </div>
         </div>
+
     </AuthenticatedLayout>
 </template>
 
@@ -186,5 +244,18 @@ const times = ['1', '3', '5', '10', '30'];
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+}
+
+/* Ensure Swal actions don't use default flex behavior */
+.swal2-actions {
+    display: flex !important;
+    justify-content: center !important;
+    width: 100% !important;
+}
+
+/* Custom backdrop to match your Game Over modal */
+.swal2-backdrop-show {
+    backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.6) !important;
 }
 </style>

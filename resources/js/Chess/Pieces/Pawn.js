@@ -1,14 +1,17 @@
 import Piece from "./Piece.js"
 
 export default class Pawn extends Piece {
-    constructor(color) {
+    constructor(color, row) {
         super(color);
-        this.xtraMove = 1;
-    }
 
-    //I will probably add a param to tell the function wherther to return the verical moves or no, 
-    //this way i won't need to change anything inside the Game class, it will  be automatic, other
-    //classes will receive additional params but that won't effect anything
+        if(row === 1 && color === 'black'){
+            this.xtraMove = 1;
+        }else if(row === 6 && color === 'white'){
+            this.xtraMove = 1;
+        }else{
+            this.xtraMove = 0;
+        }
+    }
 
     getPotentialMoves(moveContext) {
         const { row, col, board, withVertical, enPassantTarget, friendlyFire } = moveContext;

@@ -59,9 +59,9 @@ class BundleItemSeeder extends Seeder
             // Boards (no bundle_id)
             ['id'=>13,'name'=>'Minimalist Board','type'=>'board','price'=>500,'folder'=>'boards','slug'=>'classic','bundle_id'=>null,'created_at'=>$now1,'updated_at'=>$now1],
             ['id'=>14,'name'=>'Retro Board','type'=>'board','price'=>1000,'folder'=>'boards','slug'=>'retro','bundle_id'=>null,'created_at'=>$now2,'updated_at'=>$now2],
-            ['id'=>15,'name'=>'Beach Board','type'=>'board','price'=>1500,'folder'=>'boards','slug'=>'forest','bundle_id'=>null,'created_at'=>$now2,'updated_at'=>$now2],
-            ['id'=>16,'name'=>'Forest Board','type'=>'board','price'=>1500,'folder'=>'boards','slug'=>'universe','bundle_id'=>null,'created_at'=>$now2,'updated_at'=>$now2],
-            ['id'=>17,'name'=>'Universe Board','type'=>'board','price'=>2000,'folder'=>'boards','slug'=>'beach','bundle_id'=>null,'created_at'=>$now2,'updated_at'=>$now2],
+            ['id'=>15,'name'=>'Beach Board','type'=>'board','price'=>1500,'folder'=>'boards','slug'=>'beach','bundle_id'=>null,'created_at'=>$now2,'updated_at'=>$now2],
+            ['id'=>16,'name'=>'Forest Board','type'=>'board','price'=>1500,'folder'=>'boards','slug'=>'forest','bundle_id'=>null,'created_at'=>$now2,'updated_at'=>$now2],
+            ['id'=>17,'name'=>'Universe Board','type'=>'board','price'=>2000,'folder'=>'boards','slug'=>'universe','bundle_id'=>null,'created_at'=>$now2,'updated_at'=>$now2],
 
             // Extra pieces
             ['id'=>18,'name'=>'Cibernetic Pawn','type'=>'piece','price'=>600,'folder'=>'cibernetic','slug'=>'pawn','bundle_id'=>null,'created_at'=>$now2,'updated_at'=>$now2],

@@ -74,4 +74,8 @@ class User extends Authenticatable
     {
         return $this->puzzles()->max('puzzle_id') ?? 0;
     }
+
+    public function games(){
+        return $this->hasMany(Game::class);
+    }
 }

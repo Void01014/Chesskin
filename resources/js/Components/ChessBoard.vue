@@ -1,20 +1,33 @@
 <script setup>
-import { computed } from 'vue';
+import { router } from '@inertiajs/vue3';
+import GameOverModal from '@/Components/GameOver.vue';
+
 
 const props = defineProps({
     game: {
         type: Object,
         required: true
     },
-    // Allows overriding the skin folder (e.g., 'classic', 'ace_attourney')
     skin: {
         type: String,
         default: 'ace_attourney'
     }
 });
 
-// Helper for promotion pieces logic
-const promotionPieces = ['Queen', 'Rook', 'Bishop', 'Knight'];
+const emit = defineEmits(['rematch', 'close', 'game-ended']);
+
+const handleRematch = () => {
+    emit('rematch');
+};
+
+const handleClose = () => {
+    emit('close');
+};
+
+const gameEnded = () => {
+    emit('game-ended');
+};
+
 </script>
 
 <template>
@@ -26,28 +39,33 @@ const promotionPieces = ['Queen', 'Rook', 'Bishop', 'Knight'];
                 ]">
                     <img v-if="piece"
                         :src="`/assets/skins/${skin}/${piece.color}-${piece.constructor.name.toLowerCase()}.svg`"
-                        class="piece absolute w-[90%] z-10 pointer-events-none transition-transform duration-200" />
+                        class="piece absolute w-[90%] pointer-events-none transition-transform duration-200" />
 
                     <div v-if="game.board.highlightedMoves.some(m => m[0] === r && m[1] === c)"
                         class="highlight pointer-events-none z-20">
                     </div>
                 </div>
             </template>
+            <div v-if="props.game?.state === 'PROMOTION_PENDING'" id="overlay"
+                class="flex justify-center items-center absolute h-full w-full bg-[#0000006d]">
+                <section id="promotionModal"
+                    class="absolute flex items-center justify-center bg-white gap-2 h-[100px] w-[440px] p-1 rounded-xl shadow-[0_0_10px_gray]">
+                    <img @click="game.promote('Queen', game.currentPlayer)" id="Queen"
+                        src="assets/skins/ace_attourney/white-queen.svg" alt="" class="piece h-[100%] cursor-pointer">
+                    <img @click="game.promote('Rook', game.currentPlayer)" id="Rook"
+                        src="assets/skins/ace_attourney/white-rook.svg" alt="" class="piece h-[100%] cursor-pointer">
+                    <img @click="game.promote('Bishop', game.currentPlayer)" id="Bishop"
+                        src="assets/skins/ace_attourney/white-bishop.svg" alt="" class="piece h-[100%] cursor-pointer">
+                    <img @click="game.promote('Knight', game.currentPlayer)" id="Knight"
+                        src="assets/skins/ace_attourney/white-knight.svg" alt="" class="piece h-[100%] cursor-pointer">
+                </section>
+            </div>
+            <GameOverModal :game-state="game.state" :winner="game.winner" :player-color="game.humanColor"
+                @close="handleClose" @rematch="handleRematch" @game-ended="gameEnded" />
         </div>
 
-        <div v-if="game.state === 'PROMOTION_PENDING'"
-            class="flex justify-center items-center absolute inset-0 z-50 bg-black/40 backdrop-blur-[2px] rounded-sm">
-            <section
-                class="flex items-center justify-center bg-white gap-2 h-[100px] w-[440px] p-2 rounded-2xl shadow-2xl border-4 border-black/10">
-
-                <div v-for="type in promotionPieces" :key="type" class="h-full">
-                    <img @click="game.promote(type, game.currentPlayer)"
-                        :src="`/assets/skins/${skin}/${game.currentPlayer}-${type.toLowerCase()}.svg`"
-                        class="h-full aspect-square cursor-pointer hover:bg-black/5 hover:scale-110 transition-all p-1 rounded-lg" />
-                </div>
-            </section>
-        </div>
     </div>
+
 </template>
 
 <style scoped>

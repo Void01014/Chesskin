@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Bot;
 use App\Models\Puzzle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,10 +13,28 @@ class PlayController extends Controller
 {
     public function index()
     {
+        $bots = Bot::all();
+
         return Inertia::render('Play/Play', [
             'canLogin' => Route::has('login'),
             'canRegister' => Route::has('register'),
+            'bots' => $bots
         ]);
+    }
+
+    public function storeGame(Request $request)
+    {
+        $request->validate([
+            'mode' => 'required|in:pvp,pvai',
+            'bot_id' => 'nullable|integer',
+            'player_color' => 'required|string',
+            'winner' => 'required|integer|in:0,1,2',
+            'moves' => 'required|array',
+        ]);
+
+        auth()->user()->games()->create($request->all());
+
+        return redirect()->back();
     }
 
     public function puzzle()
@@ -40,9 +59,7 @@ class PlayController extends Controller
 
         // Prevent duplicate completion
         if ($user->puzzles()->where('puzzle_id', $puzzle->id)->exists()) {
-            return response()->json([
-                'message' => 'Already completed'
-            ], 200);
+            return;
         }
 
         // Attach puzzle to user (pivot table)

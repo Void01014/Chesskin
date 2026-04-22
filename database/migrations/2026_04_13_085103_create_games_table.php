@@ -13,13 +13,14 @@ return new class extends Migration
     {
         Schema::create('games', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('bot_id')->onDelete('cascade');
-            $table->enum('mode', ['pvp, pvai']);
-            $table->string('color');
-            $table->string('won');
-            $table->jsonb('moves');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->tinyInteger('bot_id')->nullable();
+            $table->enum('mode', ['pvp', 'pvai'])->default('pvai');
+            $table->string('player_color', 10);
+            $table->tinyInteger('winner')->nullable();
+            $table->jsonb('moves')->default('[]');
             $table->timestamps();
+            $table->index(['user_id', 'created_at']);
         });
     }
 

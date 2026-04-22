@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\historyController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\PlayController;
 use App\Http\Controllers\ProfileController;
@@ -29,7 +30,9 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::get('play', [PlayController::class, 'index'])->name('play');
+    Route::post('storeGame', [PlayController::class, 'storeGame'])->name('storeGame');
 
+    Route::get('history', [HistoryController::class, 'index'])->name('history');
 
     Route::get('shop', [StoreController::class, 'index'])->name('shop');
     Route::post('purchase', [StoreController::class, 'purchase'])->middleware('auth');

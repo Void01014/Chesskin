@@ -1,10 +1,9 @@
 <script setup>
 import { ref, computed } from 'vue';
-import { Head, usePage } from '@inertiajs/vue3';
+import { Head, usePage, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Navbar from '@/Components/Navbar.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
-import { router } from '@inertiajs/vue3'
 
 const page = usePage()
 const user = computed(() => page.props.auth.user)

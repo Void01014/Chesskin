@@ -21,7 +21,8 @@ const isFading = ref(false);
 const puzzle_data = ref({
     id: null,
     level: 0,
-    difficulty: 0
+    difficulty: 0,
+    num_moves: 0
 });
 
 const timer = ref(0);
@@ -43,13 +44,10 @@ const startPuzzle = (id, puzzle, level) => {
     }
 
     isFading.value = true;
-    
-    puzzle_data.value.id = id;
-    puzzle_data.value.level = level + 1;
-    puzzle_data.value.difficulty = puzzle.difficulty;
+
 
     activePuzzle.value = reactive(new Game(
-        'pvai',
+        false,
         'medium',
         null,
         true,
@@ -57,14 +55,18 @@ const startPuzzle = (id, puzzle, level) => {
         puzzle.solution
     ));
 
-    console.log(activePuzzle);
+    puzzle_data.value.id = id;
+    puzzle_data.value.level = level + 1;
+    puzzle_data.value.difficulty = puzzle.difficulty;
+    console.log(activePuzzle.value);
 
+    puzzle_data.value.num_moves = computed(() => Math.ceil((activePuzzle.value.puzzleSolution.length - activePuzzle.value.puzzle_played_moves.length) / 2));
 
     timer.value = 0;
 
     puzzleInterval.value = setInterval(() => {
         timer.value++;
-        console.log(`Elapsed time: ${timer.value} seconds`);
+        // console.log(`Elapsed time: ${timer.value} seconds`);
     }, 1000);
 };
 
@@ -72,7 +74,7 @@ watch(() => activePuzzle.value?.puzzleCompleted, (completed) => {
     if (completed) {
         console.log('id:');
         console.log(puzzle_data.value.id);
-        
+
         router.post(route('puzzle.completed', { puzzle: puzzle_data.value.id }), {
             solve_time: timer.value,
         }, {
@@ -113,7 +115,6 @@ watch(() => activePuzzle.value?.puzzleCompleted, (completed) => {
                     <span class="absolute top-4 left-4 text-[10px] font-bold uppercase tracking-tighter text-white/50">
                         Level {{ index + 1 }}
                     </span>
-
                     <div class="mb-2">
                         <svg v-if="getPuzzleStatus(puzzle.id) === 'locked'" class="w-8 h-8 text-white/20"
                             fill="currentColor" viewBox="0 0 24 24">
@@ -142,6 +143,8 @@ watch(() => activePuzzle.value?.puzzleCompleted, (completed) => {
                             <h2 class="text-4xl font-black mb-2 uppercase tracking-tight">Level {{ puzzle_data.level }}
                             </h2>
                             <p class="text-gray-400 font-mono text-sm mb-8">Difficulty: {{ puzzle_data.difficulty }}</p>
+                            <h2>Number of moves left: {{ puzzle_data.num_moves }}</h2>
+
                         </div>
                         <PrimaryButton @click="activePuzzle = null; isFading = false"
                             class="ml-auto h-10 w-10 !justify-center !p-0 !rounded-2xl opacity-70 hover:opacity-100 transition-opacity">

@@ -7,23 +7,23 @@ import Bishop from "./Pieces/Bishop.js";
 import Pawn from "./Pieces/Pawn.js";
 
 const gameState = {
-    IDLE: 'IDLE',
     SELECTING_PIECE: 'SELECTING_PIECE',
     SELECTING_MOVE: 'SELECTING_MOVE',
     PROMOTION_PENDING: 'PROMOTION_PENDING',
-    PAUSED: 'PAUSED',
-    GMAE_OVER: 'GAME_OVER',
+    GAME_OVER: 'GAME_OVER',
 }
 
 export default class Game {
 
-    constructor(mode, difficulty, timeLimit, ispuzzle, puzzlePosition, puzzleSolution) {
+    constructor(mode, difficulty, timeLimit, bot_id, ispuzzle, puzzlePosition, puzzleSolution) {
         this.board = new Board(this);
         this.state = gameState.SELECTING_PIECE;
+        this.winner = null;
         this.currentPlayer = 'white';
-        this.humanColor = 'white';
 
+        this.humanColor = 'white';
         this.isAiGame = mode;
+        this.bot_id = bot_id ?? null;
         this.aiWorker = new Worker('/js/stockfish.js');
         this.aiWorker.onmessage = (event) => {
             const message = event.data;
@@ -56,6 +56,8 @@ export default class Game {
             black: ['q', 'k']
         }
 
+        this.history = [];
+
         //////////////////////
         //puzzles        
 
@@ -64,7 +66,7 @@ export default class Game {
         this.puzzleFailed = false;
         this.puzzleSolution = puzzleSolution ?? [];
         this.puzzle_played_moves = []
-        if (ispuzzle) {            
+        if (ispuzzle) {
             this.generatePuzzle(puzzlePosition)
         } else {
             this.initializeBoard();
@@ -87,7 +89,7 @@ export default class Game {
 
         const placePawns = (color, row) => {
             for (let i = 0; i < 8; i++) {
-                this.board.setPiece(row, i, new Pawn(color));
+                this.board.setPiece(row, i, new Pawn(color, row));
             }
         }
 
@@ -106,7 +108,7 @@ export default class Game {
     //////////////////////////////////////////////
 
     handleSquareClick(row, col) {
-        if (this.state == gameState.SELECTING_PIECE) {
+        if (this.state == gameState.SELECTING_PIECE && (this.currentPlayer === this.humanColor || !this.isAiGame)) {
             this.handleSelection(row, col);
         } else if (this.state == gameState.SELECTING_MOVE) {
             this.handleMove(row, col);
@@ -145,7 +147,7 @@ export default class Game {
         }
     }
 
-    handleMove(row, col) {
+    async handleMove(row, col) {
         const opponentColor = this.currentPlayer === 'white' ? 'black' : 'white';
         const selectedPosition = this.board.getPiece(row, col)
         const selectedPiece = this.board.getPiece(this.selectedSquare.row, this.selectedSquare.col);
@@ -169,10 +171,12 @@ export default class Game {
             //if puzzle, check if the sequence is correct
             if (this.ispuzzle) {
                 const valid_puzzle_move = this.puzzleValidation(this.selectedSquare.row, this.selectedSquare.col, row, col);
+
                 if (valid_puzzle_move) {
-                    this.executeMove(this.selectedSquare.row, this.selectedSquare.col, row, col);
+                    await this.executeMove(this.selectedSquare.row, this.selectedSquare.col, row, col);
+                    this.finalizeTurn(false);
                 }
-            }else{
+            } else {
                 this.executeMove(this.selectedSquare.row, this.selectedSquare.col, row, col);
             }
 
@@ -201,81 +205,96 @@ export default class Game {
         this.board.setPiece(startRow, startCol, null);
         this.board.grid = [...this.board.grid];
 
-        //Logic for En Passant
+        this.handleSpecialMoves(selectedPiece, startRow, startCol, endRow, endCol, aiPromotionChoice)
+
+        if (this.state !== gameState.PROMOTION_PENDING) {
+            const from_uci = this.coordsToAlgebraic(startRow, startCol)
+            const to_uci = this.coordsToAlgebraic(endRow, endCol)
+
+            this.history.push(`${from_uci + to_uci}`)
+            this.check_n_checkmate(startRow, startCol, endRow, endCol);
+        }
+        // console.log(`Moved to ${endRow},${endCol}`);
+    }
+
+    handleSpecialMoves(selectedPiece, startRow, startCol, endRow, endCol, aiPromotionChoice) {
+        // En Passant capture
         if (selectedPiece.constructor.name === 'Pawn' && this.enPassantTarget) {
             const [epRow, epCol] = this.enPassantTarget;
-            const captureRow = selectedPiece.color === 'white' ? endRow + 1 : endRow - 1;
 
             if (endRow === (selectedPiece.color === 'white' ? 2 : 5) && endCol === epCol) {
                 this.board.setPiece(epRow, epCol, null);
             }
         }
 
+        // En Passant target update
         if (selectedPiece.constructor.name === 'Pawn' && Math.abs(startRow - endRow) === 2) {
             this.enPassantTarget = [endRow, endCol];
         } else {
             this.enPassantTarget = null;
         }
 
+        // Reset pawn extra move flag
         if (selectedPiece.xtraMove !== undefined) {
             selectedPiece.xtraMove = 0;
         }
 
-        //Logic for castling
+        // Castling move (rook movement)
         if (selectedPiece.constructor.name === 'King') {
             if (endCol - startCol > 1) {
-                const king_s_rook = this.board.getPiece(startRow, 7);
-                this.board.setPiece(startRow, 5, king_s_rook);
+                const rook = this.board.getPiece(startRow, 7);
+                this.board.setPiece(startRow, 5, rook);
                 this.board.setPiece(startRow, 7, null);
             } else if (endCol - startCol < -1) {
-                const queen_s_rook = this.board.getPiece(startRow, 0);
-                this.board.setPiece(startRow, 3, queen_s_rook);
+                const rook = this.board.getPiece(startRow, 0);
+                this.board.setPiece(startRow, 3, rook);
                 this.board.setPiece(startRow, 0, null);
             }
         }
 
+        // Castling rights update
         if (selectedPiece.constructor.name === 'King') {
-            this.castling[selectedPiece.color] = []
+            this.castling[selectedPiece.color] = [];
         } else if (selectedPiece.constructor.name === 'Rook') {
             const kingCol = this.kingPositions[selectedPiece.color].c;
             const rookCol = startCol;
 
             if (rookCol < kingCol) {
-                const targetColor = selectedPiece.color === 'white' ? 'Q' : 'q';
-                this.castling[selectedPiece.color] = this.castling[selectedPiece.color].filter(color => color != targetColor);
+                const target = selectedPiece.color === 'white' ? 'Q' : 'q';
+                this.castling[selectedPiece.color] =
+                    this.castling[selectedPiece.color].filter(c => c !== target);
             } else {
-                const targetColor = selectedPiece.color === 'white' ? 'K' : 'k';
-                this.castling[selectedPiece.color] = this.castling[selectedPiece.color].filter(color => color != targetColor);
+                const target = selectedPiece.color === 'white' ? 'K' : 'k';
+                this.castling[selectedPiece.color] =
+                    this.castling[selectedPiece.color].filter(c => c !== target);
             }
         }
 
+        // Promotion
         const isPawn = selectedPiece.constructor.name === 'Pawn';
         const promotionRank = selectedPiece.color === 'white' ? 0 : 7;
 
-        //Logic for promotion
         if (isPawn && endRow === promotionRank) {
             if (aiPromotionChoice) {
                 const pieceClasses = {
-                    'q': Queen,
-                    'r': Rook,
-                    'b': Bishop,
-                    'n': Knight
-                }
+                    q: Queen,
+                    r: Rook,
+                    b: Bishop,
+                    n: Knight
+                };
 
-                const chosenClass = pieceClasses[aiPromotionChoice] || Queen;
-                const promotedPiece = new chosenClass(selectedPiece.color);
+                const Chosen = pieceClasses[aiPromotionChoice] || Queen;
+                const promotedPiece = new Chosen(selectedPiece.color);
 
-                this.board.setPiece(endRow, endCol, promotedPiece)
+                this.board.setPiece(endRow, endCol, promotedPiece);
             } else {
                 this.pendingPromotion = [endRow, endCol];
                 this.state = gameState.PROMOTION_PENDING;
-                return;
+                return true;
             }
         }
 
-        this.check_n_checkmate(startRow, startCol, endRow, endCol);
-
-        // console.log(`Moved to ${endRow},${endCol}`);
+        return false;
     }
 
     check_n_checkmate() {
@@ -304,12 +323,13 @@ export default class Game {
             const kingMoves = op_king.getPotentialMoves(moveContext);
 
             if (is_check) {
-                alert('checkmate');
+                this.winner = this.currentPlayer == 'white' ? 1 : 2;
+                this.state = gameState.GAME_OVER
             } else if (kingMoves.length === 0) {
-                alert('stalemate');
+                this.state = gameState.GAME_OVER
             }
         }
-
+        
         this.finalizeTurn(false);
     }
 
@@ -319,21 +339,12 @@ export default class Game {
         const currentIndex = this.puzzle_played_moves.length;
         const expectedMove = this.puzzleSolution[currentIndex];
 
-        console.log("THIS IS:", this);
-        console.log(this.puzzleSolution);
-        // console.log('index: ' + currentIndex);
-        // console.log('exMove: ' + expectedMove);
-
-
         if (!expectedMove) {
             console.log("Puzzle already completed or no more moves expected");
             return;
         }
 
         const [expStartRow, expStartCol, expEndRow, expEndCol] = expectedMove;
-
-        console.log(expStartRow, expStartCol, expEndRow, expEndCol);
-
 
         if (
             startRow === expStartRow &&
@@ -347,11 +358,23 @@ export default class Game {
             if (this.puzzle_played_moves.length === this.puzzleSolution.length) {
                 console.log("Puzzle solved!");
                 this.puzzleCompleted = true;
+            } else {
+                //pre-defined move
+                setTimeout(() => {
+                    const expectedMove2 = this.puzzleSolution[currentIndex + 1];
+                    const [expStartRow2, expStartCol2, expEndRow2, expEndCol2] = expectedMove2;
+
+                    const piece = this.board.getPiece(expStartRow2, expStartCol2);
+                    this.board.setPiece(expEndRow2, expEndCol2, piece);
+                    this.board.setPiece(expStartRow2, expStartCol2, null);
+                    this.kingPositions.white = this.getKingPosition('white');
+                    this.kingPositions.black = this.getKingPosition('black');
+
+                    this.puzzle_played_moves.push(expectedMove2);
+                }, 400);
             }
         } else {
             console.log("Wrong move");
-
-            this.puzzle_played_moves = [];
             this.finalizeTurn(true);
             return false;
         }
@@ -468,7 +491,7 @@ export default class Game {
 
                     for (const [mrow, mcol] of potentialMoves) {
                         if (this.sandboxValidation(r, c, mrow, mcol, piece, color)) {
-                            console.log(`Valid move: (${r}, ${c}) -> (${mrow}, ${mcol})`);
+                            // console.log(`Valid move: (${r}, ${c}) -> (${mrow}, ${mcol})`);
                             canMove = true;
                         }
                     }
@@ -487,7 +510,7 @@ export default class Game {
         if (!retry) {
             this.currentPlayer = this.currentPlayer === 'white' ? 'black' : 'white';
         }
-        this.state = gameState.SELECTING_PIECE;
+        this.state = this.state === gameState.GAME_OVER ? this.state : gameState.SELECTING_PIECE;
         this.validMovesForSelected = [];
         this.board.RenderMoves([]);
         this.kingPositions.white = this.getKingPosition('white');
@@ -514,8 +537,12 @@ export default class Game {
 
         const chosenClass = pieceClasses[pieceName];
         const promotedPiece = new chosenClass(color);
+        const chosen_char = pieceName === 'Knight' ? 'n' : pieceName[0].toLowerCase();
 
+        this.history[this.history.length - 1] += chosen_char;
+        alert(this.history[this.history.length - 1])
         this.board.setPiece(row, col, promotedPiece)
+
         this.check_n_checkmate();
     }
 
@@ -575,8 +602,9 @@ export default class Game {
     coordsToAlgebraic(prow, pcol) {
         if (prow === undefined || pcol === undefined) return "-";
         const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-        const row = 8 - prow; // Chess rows go 8 to 1
+        const row = 8 - prow;
         const col = files[pcol];
+        // alert(`${col}${row}`);
         return `${col}${row}`;
     }
 
@@ -681,7 +709,7 @@ export default class Game {
                         throw new Error(`Unknown piece: ${piece}`)
                     }
 
-                    puzzle_pos[i][j] = new chosenClass(isWhite ? 'white' : 'black')
+                    puzzle_pos[i][j] = new chosenClass(isWhite ? 'white' : 'black', i)
                 }
             }
         }

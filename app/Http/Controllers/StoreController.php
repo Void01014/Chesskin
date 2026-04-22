@@ -54,7 +54,6 @@ class StoreController extends Controller
     {
         $request->validate([
             'item_id' => 'nullable|exists:items,id',
-            'bundle_id' => 'nullable|exists:bundles,id',
         ]);
 
         $user = auth()->user();
