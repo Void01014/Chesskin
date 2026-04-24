@@ -4,12 +4,14 @@ import { Head, router, usePage } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Navbar from '@/Components/Navbar.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import EquipToast from '@/Components/EquipToast.vue';
 
 const page = usePage()
 const user = computed(() => page.props.auth.user)
 
 const props = defineProps({
-    items: Array
+    items: Array,
+    flash: Object
 })
 
 const activeTab = ref('pieces')
@@ -37,6 +39,9 @@ const boards = computed(() => {
     return props.items.filter(i => i.type === 'board')
 })
 
+console.log(props.items);
+
+
 // ===== SETS (grouped) =====
 const sets = computed(() => {
     const grouped = {}
@@ -47,6 +52,7 @@ const sets = computed(() => {
         if (!grouped[item.bundle_id]) {
             grouped[item.bundle_id] = {
                 id: item.bundle_id,
+                is_bundle: true,
                 name: item.bundle?.name || 'Set',
                 folder: item.folder,
                 items: []
@@ -61,9 +67,23 @@ const sets = computed(() => {
 
 const pieces = ['pawn', 'knight', 'bishop', 'queen', 'king', 'rook']
 
-const equip_item = async () => {
-    router.post('equip', {
-        item_id:1
+const equip = async (item) => {
+    console.log(item);
+
+    const payLoad = item.is_bundle
+        ? { bundle_id: item.id }
+        : { item_id: item.id };
+
+    router.post('equip', payLoad, {
+        onStart: () => {
+            console.log('Equipping...')
+        },
+        onSuccess: () => {
+            console.log('Equip successful')
+        },
+        onError: (err) => {
+            console.error(err)
+        }
     })
 }
 </script>
@@ -108,29 +128,25 @@ const equip_item = async () => {
                         class="w-full bg-white/5 border border-white/10 rounded-2xl py-3 px-5 text-white focus:border-white/30" />
                 </div>
 
-                <!-- CREDITS -->
-                <div class="absolute right-40 ring ring-white rounded-lg py-2 px-5 text-xl">
-                    {{ user.credits }} CC
-                </div>
-
                 <!-- ================= PIECES ================= -->
                 <div v-if="activeTab === 'pieces'" class="grid grid-cols-2 md:grid-cols-4 gap-6">
 
-                    <div v-for="item in filteredPieces" :key="item.id"
+                    <div v-for="piece in filteredPieces" :key="piece.id"
                         class="bg-white/5 border border-white/10 rounded-[2rem] p-6 text-center">
 
                         <div class="w-24 h-24 mx-auto relative mb-6">
-                            <img :src="`/assets/skins/${item.folder}/black-${item.slug}.svg`"
+                            <img :src="`/assets/skins/${piece.folder}/black-${piece.slug}.svg`"
                                 class="absolute inset-0 w-full h-full opacity-40" />
-                            <img :src="`/assets/skins/${item.folder}/white-${item.slug}.svg`"
+                            <img :src="`/assets/skins/${piece.folder}/white-${piece.slug}.svg`"
                                 class="absolute inset-0 w-full h-full"
                                 style="clip-path: polygon(0 0, 100% 0, 0 100%);" />
                         </div>
 
-                        <h3 class="text-white font-bold mb-3">{{ item.name }}</h3>
-
-                        <PrimaryButton class="w-full py-2">
-                            Equip
+                        <h3 class="text-white font-bold mb-3">{{ piece.name }}</h3>
+                        <PrimaryButton
+                            :class="['w-full py-2', piece.is_equipped ? 'bg-white/25 pointer-events-none' : '']"
+                            @click="equip(piece)">
+                            {{ piece.is_equipped ? 'Equipped' : 'Equip' }}
                         </PrimaryButton>
                     </div>
 
@@ -159,7 +175,7 @@ const equip_item = async () => {
                                     {{ set.description }}
                                 </span>
                                 <div class="flex gap-5">
-                                    <PrimaryButton class="!px-3 !py-2 !rounded-xl">
+                                    <PrimaryButton class="!px-3 !py-2 !rounded-xl" @click="equip(set)">
                                         Equip Set
                                     </PrimaryButton>
                                 </div>
@@ -175,18 +191,19 @@ const equip_item = async () => {
                 <!-- ================= BOARDS ================= -->
                 <div v-else-if="activeTab === 'boards'" class="grid grid-cols-2 md:grid-cols-3 gap-6">
 
-                    <div v-for="item in boards" :key="item.id"
+                    <div v-for="board in boards" :key="board.id"
                         class="bg-white/5 border border-white/10 rounded-[2rem] p-6 text-center">
 
-                        <img :src="`/assets/skins/boards/${item.slug}.svg`"
+                        <img :src="`/assets/skins/boards/${board.slug}.svg`"
                             class="w-full aspect-square rounded-lg shadow-xl mb-6" />
 
-                        <h3 class="text-white font-bold mb-3">{{ item.name }}</h3>
+                        <h3 class="text-white font-bold mb-3">{{ board.name }}</h3>
 
-                        <PrimaryButton class="w-full py-2">
-                            Equip Board
+                        <PrimaryButton
+                            :class="['w-full py-2', board.is_equipped ? 'bg-white/25 pointer-events-none' : '']"
+                            @click="equip(board)">
+                            {{ board.is_equipped ? 'Equipped' : 'Equip' }}
                         </PrimaryButton>
-
                     </div>
 
                 </div>
@@ -195,5 +212,7 @@ const equip_item = async () => {
 
         </div>
 
+        <EquipToast :show="$page.props.flash?.success" :message="$page.props.flash?.success" type="success"
+            @close="$page.props.flash.success = null"></EquipToast>
     </AuthenticatedLayout>
 </template>

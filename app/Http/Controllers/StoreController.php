@@ -61,7 +61,6 @@ class StoreController extends Controller
         if (! $request->item_id && ! $request->bundle_id) {
             return response()->json(['error' => 'Nothing to purchase'], 400);
         }
-
         if ($request->item_id && $request->bundle_id) {
             return response()->json(['error' => 'Invalid request'], 400);
         }

@@ -22,9 +22,12 @@ defineProps({
 });
 
 const items = [
+    { name: 'Classic King', folder: 'classic', type: 'king' },
     { name: 'Cibernetic Pawn', folder: 'cibernetic', type: 'pawn' },
+    { name: 'Ace Attourney Queen', folder: 'ace_attourney', type: 'queen' },
     { name: 'Marble Pawn', folder: 'marble', type: 'pawn' },
     { name: 'Ace Attourney Bishop', folder: 'ace_attourney', type: 'bishop' },
+    { name: 'Classic Rook', folder: 'classic', type: 'rook' },
     { name: 'Ace Attourney Knight', folder: 'ace_attourney', type: 'knight' },
 ]
 
@@ -42,7 +45,7 @@ const items = [
 
         <Navbar :user="auth.user" />
 
-        <main class="relative pt-56 pb-20 px-6 flex flex-col items-center text-center">
+        <main class="overflow-hidden relative pt-56 pb-20 px-6 flex flex-col items-center text-center">
 
             <div class="absolute top-40 flex gap-4 opacity-50 pointer-events-none">
                 <img src="/assets/skins/ace_attourney/white-rook.svg"
@@ -68,35 +71,36 @@ const items = [
                     class="bg-white/90 text-black px-16 py-6 rounded-2xl !text-sm shadow-[0_0_30px_rgba(255,255,255,0.1)] uppercase tracking-[0.3em] font-bold hover:bg-white hover:scale-105 transition-all duration-1000 flex items-center justify-center">
                     Start Customizing
                 </Link>
-                
+
                 <Link href="/inventory"
                     class="px-16 py-6 rounded-2xl border-2 border-white/20 text-sm uppercase tracking-[0.3em] font-bold hover:bg-white/5 hover:scale-105 transition-all duration-1000 flex items-center justify-center">
                     Browse Collection
                 </Link>
             </div>
+            <div
+                class="mt-32 w-full max-w-6xl overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
+                <div class="flex w-max gap-4 animate-marquee hover:[animation-play-state:paused]">
+                    <template v-for="_ in 2" :key="_">
+                        <div v-for="item in items" :key="item.folder"
+                            class="flex-shrink-0 w-40 aspect-square rounded-3xl border border-white/5 bg-white/[0.02] p-4 flex flex-col justify-center items-center group hover:border-white/20 transition-all">
 
-            <div class="mt-32 grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-6xl">
-                <div v-for="item in items" :key="item.folder"
-                    class="aspect-square rounded-3xl border border-white/5 bg-white/[0.02] p-4 flex flex-col justify-center items-center group hover:border-white/20 transition-all">
+                            <div
+                                class="relative w-24 h-24 group-hover:scale-110 transition-transform duration-500 ease-out">
+                                <img :src="`/assets/skins/${item.folder}/black-${item.type}.svg`" alt=""
+                                    class="absolute inset-0 w-full h-full opacity-20" />
+                                <img :src="`/assets/skins/${item.folder}/white-${item.type}.svg`" alt=""
+                                    class="absolute inset-0 w-full h-full object-contain"
+                                    style="clip-path: polygon(0 0, 100% 0, 0 100%); -webkit-clip-path: polygon(0 0, 100% 0, 0 100%);" />
+                            </div>
 
-                    <div class="relative w-24 h-24 group-hover:scale-110 transition-transform duration-500 ease-out">
-
-                        <img :src="`/assets/skins/${item.folder}/black-${item.type}.svg`" alt=""
-                            class="absolute inset-0 w-full h-full opacity-20" />
-
-                        <img :src="`/assets/skins/${item.folder}/white-${item.type}.svg`" alt=""
-                            class="absolute inset-0 w-full h-full object-contain"
-                            style="clip-path: polygon(0 0, 100% 0, 100% 100%, 0 0); -webkit-clip-path: polygon(0 0, 100% 0, 0 100%);" />
-
-                    </div>
-
-                    <span
-                        class="mt-4 text-white/50 text-xs font-medium uppercase tracking-widest group-hover:text-white transition-colors">
-                        {{ item.name }}
-                    </span>
+                            <span
+                                class="mt-4 text-white/50 text-xs font-medium uppercase tracking-widest group-hover:text-white transition-colors">
+                                {{ item.name }}
+                            </span>
+                        </div>
+                    </template>
                 </div>
             </div>
-
         </main>
 
         <footer class="py-20 text-center opacity-30">

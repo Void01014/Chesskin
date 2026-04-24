@@ -57,6 +57,27 @@ class User extends Authenticatable
         return $this->hasMany(Inventory::class);
     }
 
+    public function equippedPieces()
+    {
+        return $this->hasMany(UserEquippedPiece::class);
+    }
+
+    public function getEquippedItemIds()
+    {
+        $pieceIds = $this->equippedPieces()->pluck('item_id')->toArray();
+
+        if ($this->equipped_board_id) {
+            $pieceIds[] = $this->equipped_board_id;
+        }
+
+        return $pieceIds;
+    }
+
+    public function hasEquipped($itemId)
+    {
+        return in_array($itemId, $this->getEquippedItemIds());
+    }
+
     public function items()
     {
         return $this->hasManyThrough(

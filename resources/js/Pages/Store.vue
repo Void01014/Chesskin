@@ -110,9 +110,6 @@ const pieces = ['pawn', 'knight', 'bishop', 'queen', 'king', 'rook']
                 </div>
             </div>
 
-            <div class="absolute ring ring-white rounded-lg py-2 px-5 right-60 text-xl text-bold">{{ user.credits }} CC
-            </div>
-
             <div class="space-y-12">
                 <div v-for="bundle in filteredItems.filter(i => i.is_bundle)" :key="'set-' + bundle.id" class="group">
                     <div class="flex justify-between items- mb-4 px-2">
