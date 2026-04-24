@@ -8,11 +8,27 @@ const props = defineProps({
         type: Object,
         required: true
     },
-    skin: {
-        type: String,
-        default: 'ace_attourney'
+    equipped_pieces: Array,
+    equipped_board: Object,
+    random_bundle: Array,
+});
+
+const mapped_pieces = {};
+const mapped_random_pieces = {};
+
+props.equipped_pieces.forEach((equipment, index) => {
+    mapped_pieces[equipment.item.slug] = equipment.item.folder;
+
+    const randomPiece = props.random_bundle[index];
+    if (randomPiece) {
+        mapped_random_pieces[randomPiece.slug] = randomPiece.folder;
     }
 });
+
+console.log(mapped_pieces.pawn);
+
+// alert(mapped_pieces.pawn)
+
 
 const emit = defineEmits(['rematch', 'close', 'game-ended']);
 
@@ -35,18 +51,19 @@ const gameEnded = () => {
         <div :class="[
             'board-wrapper grid grid-cols-8 w-full aspect-square relative rounded-sm',
             game.humanColor === 'black' ? 'rotate-180' : ''
-        ]">
+        ]" :style="`background-image: url('/assets/skins/boards/${props.equipped_board.slug}.svg')`">
             <template v-for="(row, r) in game.board.grid" :key="'row-' + r">
                 <div v-for="(piece, c) in row" :key="`sq-${r}-${c}`" @click="game.handleSquareClick(r, c)"
                     class="square relative flex justify-center items-center aspect-square w-full cursor-pointer">
 
-                    <img v-if="piece"
-                        :src="`/assets/skins/${skin}/${piece.color}-${piece.constructor.name.toLowerCase()}.svg`"
-                        :class="[
-                            'piece absolute w-[90%] pointer-events-none transition-transform duration-200',
-                            game.humanColor === 'black' ? 'rotate-180' : ''
-                        ]" />
-
+                    <img v-if="piece" :src="`/assets/skins/${piece.color === game.humanColor
+                        ? mapped_pieces[piece.constructor.name.toLowerCase()]
+                        : mapped_random_pieces[piece.constructor.name.toLowerCase()]
+                        }/${piece.color}-${piece.constructor.name.toLowerCase()}.svg`" :class="[
+                                    'piece absolute w-[90%] pointer-events-none transition-transform duration-200',
+                                    game.humanColor === 'black' ? 'rotate-180' : '',
+                                    piece.color === game.humanColor ? 'glow-blue' : 'glow-red'
+                                ]" />
                     <div v-if="game.board.highlightedMoves.some(m => m[0] === r && m[1] === c)"
                         class="highlight pointer-events-none z-20">
                     </div>
@@ -82,11 +99,24 @@ const gameEnded = () => {
     position: absolute;
     width: 25%;
     height: 25%;
-    background-color: rgba(0, 0, 0, 0.25);
+    background-color: rgba(0, 0, 0, 0.557);
     border-radius: 50%;
+    animation: pulse 1.8s ease-in-out infinite;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.445);
+    }
+
+    50% {
+        box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.584);
+    }
 }
 
 .piece {
@@ -98,8 +128,39 @@ const gameEnded = () => {
     padding: 0;
     margin: 0;
     position: relative;
-    background-image: url('/assets/skins/boards/retro.svg');
     background-size: 100% 100%;
     background-repeat: no-repeat;
+}
+
+.glow-blue {
+    animation: glow-blue 3s ease-in-out infinite;
+}
+
+.glow-red {
+    animation: glow-red 3s ease-in-out infinite;
+}
+
+@keyframes glow-blue {
+
+    0%,
+    100% {
+        filter: drop-shadow(0 0 3px rgba(99, 179, 237, 0.3));
+    }
+
+    50% {
+        filter: drop-shadow(0 0 8px rgba(32, 154, 241, 0.75));
+    }
+}
+
+@keyframes glow-red {
+
+    0%,
+    100% {
+        filter: drop-shadow(0 0 3px rgba(252, 129, 129, 0.3));
+    }
+
+    50% {
+        filter: drop-shadow(0 0 8px rgba(247, 84, 84, 0.75));
+    }
 }
 </style>

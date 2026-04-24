@@ -15,13 +15,17 @@ const gameState = {
 
 export default class Game {
 
-    constructor(mode, difficulty, timeLimit, bot_id, ispuzzle, puzzlePosition, puzzleSolution) {
+    constructor(mode, difficulty, timeLimit, bot_id, ispuzzle, puzzlePosition, puzzleSolution, human_color = 'white') {
         this.board = new Board(this);
         this.state = gameState.SELECTING_PIECE;
         this.winner = null;
         this.currentPlayer = 'white';
 
-        this.humanColor = Math.random() > 0.5 ? 'white' : 'black';
+        if(ispuzzle){
+            this.humanColor = human_color;
+        }else{
+            this.humanColor = Math.random() > 0.5 ? 'white' : 'black';
+        }
         this.isAiGame = mode;
         this.bot_id = bot_id ?? null;
         this.aiWorker = new Worker('/js/stockfish.js');

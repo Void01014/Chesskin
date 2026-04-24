@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Bot;
+use App\Models\Bundle;
+use App\Models\Item;
 use App\Models\Puzzle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,10 +17,15 @@ class PlayController extends Controller
     {
         $bots = Bot::all();
 
+        $equipped_pieces = Auth::user()->equippedPieces()->with('item:id,folder,slug')->get();
+
+        $randomBundle = Bundle::with('items')->inRandomOrder()->first();
+
         return Inertia::render('Play/Play', [
-            'canLogin' => Route::has('login'),
-            'canRegister' => Route::has('register'),
-            'bots' => $bots
+            'bots' => $bots,
+            'equipped_pieces' => $equipped_pieces,
+            'equipped_board' => Item::find(Auth::user()->equipped_board_id),
+            'random_bundle' => $randomBundle?->items,
         ]);
     }
 
@@ -42,9 +49,17 @@ class PlayController extends Controller
         $puzzles = Puzzle::orderBy('id', 'asc')->get();
         $solvedPuzzleIds = auth()->user()->puzzles()->pluck('puzzle_id')->toArray();
 
+        $equipped_pieces = Auth::user()->equippedPieces()->with('item:id,folder,slug')->get();
+
+        $randomBundle = Bundle::with('items')->inRandomOrder()->first();
+
+
         return Inertia::render('Play/Puzzle', [
             'puzzles' => $puzzles,
-            'solvedPuzzleIds' => $solvedPuzzleIds
+            'solvedPuzzleIds' => $solvedPuzzleIds,
+            'equipped_pieces' => $equipped_pieces,
+            'equipped_board' => Item::find(Auth::user()->equipped_board_id),
+            'random_bundle' => $randomBundle?->items,
         ]);
     }
 

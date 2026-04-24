@@ -18,10 +18,10 @@ class InventoryController extends Controller
         $equippedIds = $user->getEquippedItemIds();
 
         $items = $user->items()->with('bundle')->get()
-                ->map(function ($item) use ($equippedIds){
-                    $item->is_equipped = in_array($item->id, $equippedIds);
-                    return $item;
-                });
+            ->map(function ($item) use ($equippedIds) {
+                $item->is_equipped = in_array($item->id, $equippedIds);
+                return $item;
+            });
 
         return Inertia::render('Inventory', [
             'items' => $items
@@ -65,9 +65,8 @@ class InventoryController extends Controller
                             'item_id' => $item->id,
                         ]
                     );
-
-                    return back()->with('success', 'Equipped successfully');
                 }
+                return back()->with('success', 'Equipped successfully');
             } else {
                 $item = Item::find($request->item_id);
 

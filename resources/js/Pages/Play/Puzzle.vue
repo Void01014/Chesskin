@@ -10,7 +10,10 @@ import axios from 'axios';
 
 const props = defineProps({
     puzzles: Array,
-    solvedPuzzleIds: Array
+    solvedPuzzleIds: Array,
+    equipped_pieces: Array,
+    equipped_board: Object,
+    random_bundle: Array
 });
 
 const page = usePage();
@@ -53,13 +56,13 @@ const startPuzzle = (id, puzzle, level) => {
         null,
         true,
         puzzle.positions,
-        puzzle.solution
+        puzzle.solution,
+        puzzle.player_color
     ));
 
     puzzle_data.value.id = id;
     puzzle_data.value.level = level + 1;
     puzzle_data.value.difficulty = puzzle.difficulty;
-    console.log(activePuzzle.value);
 
     puzzle_data.value.num_moves = computed(() => Math.ceil((activePuzzle.value.puzzleSolution.length - activePuzzle.value.puzzle_played_moves.length) / 2));
 
@@ -73,9 +76,6 @@ const startPuzzle = (id, puzzle, level) => {
 
 watch(() => activePuzzle.value?.puzzleCompleted, (completed) => {
     if (completed) {
-        console.log('id:');
-        console.log(puzzle_data.value.id);
-
         router.post(route('puzzle.completed', { puzzle: puzzle_data.value.id }), {
             solve_time: timer.value,
         }, {
@@ -172,7 +172,8 @@ watch(() => activePuzzle.value?.puzzleCompleted, (completed) => {
                     </div>
                 </div>
 
-                <ChessBoard :game="activePuzzle" skin="ace_attourney" class="w-full" />
+                <ChessBoard :game="activePuzzle" :equipped_pieces=equipped_pieces :equipped_board=equipped_board
+                    :random_bundle=random_bundle class="w-full" />
             </div>
         </div>
     </AuthenticatedLayout>

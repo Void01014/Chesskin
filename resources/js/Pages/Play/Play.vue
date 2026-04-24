@@ -13,14 +13,17 @@ import GameOver from '@/Components/GameOver.vue';
 const page = usePage()
 const user = computed(() => page.props.auth.user)
 
-const { bots } = defineProps({
-    bots: Array
+const props = defineProps({
+    bots: Array,
+    equipped_pieces: Array,
+    equipped_board: Object,
+    random_bundle: Array
 })
 
 const emit = defineEmits(['rematch', 'close']);
 
 const nexusSwal = Swal.mixin({
-    background: '#18181b', // zinc-900
+    background: '#18181b',
     color: '#ffffff',
     buttonsStyling: false,
     customClass: {
@@ -177,7 +180,7 @@ const storeGame = (game) => {
                     <div v-if="options.mode === 'pvai'" class="space-y-1">
                         <p class="text-xs font-semibold text-gray-400">AI Difficulty</p>
                         <div class="flex flex-col gap-2">
-                            <button v-for="bot in bots" :key="bot.id"
+                            <button v-for="bot in props.bots" :key="bot.id"
                                 @click="options.bot.id = bot.id; options.bot.difficulty = bot.difficulty"
                                 class="py-1 rounded-lg text-xs border transition-all" :class="options.bot.difficulty === bot.difficulty
                                     ? 'bg-white/85 !border-gray-500 text-black'
@@ -210,7 +213,8 @@ const storeGame = (game) => {
             <div v-if="!choosing_op"
                 class="flex flex-col sm:flex-row items-center sm:h-full w-[85vw] sm:w-[115vh] gap-4 ">
                 <div class="flex justify-center w-full">
-                    <ChessBoard :game="game" skin="ace_attourney" @game-ended="storeGame(game)"
+                    <ChessBoard :game="game" :equipped_pieces=equipped_pieces :equipped_board=equipped_board
+                        :random_bundle=random_bundle @game-ended="storeGame(game)"
                         @rematch="startGame(options, game?.state === 'GAME_OVER')"
                         @close="stopGame(game?.state === 'GAME_OVER')">
                     </ChessBoard>
