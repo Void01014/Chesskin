@@ -33,13 +33,22 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
+
+    protected $fillable = [
+        'password',
+        'is_admin',
+        'equipped_board_id',
+        'credits',
+    ];
+
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'isAdmin' => 'boolean',
-            'custom_pieces' => 'array',
+            'is_admin' => 'boolean',
+            'equipped_board_id' => 'integer',
+            'credits' => 'integer',
         ];
     }
 
@@ -75,7 +84,8 @@ class User extends Authenticatable
         return $this->puzzles()->max('puzzle_id') ?? 0;
     }
 
-    public function games(){
+    public function games()
+    {
         return $this->hasMany(Game::class);
     }
 }

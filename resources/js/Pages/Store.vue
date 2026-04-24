@@ -13,6 +13,9 @@ const props = defineProps({
     variants: Array
 })
 
+console.log(props.variants);
+
+
 const search = ref('');
 const filters = ref(['pieces', 'sets', 'boards'])
 const hideOwned = ref(true)
@@ -51,10 +54,15 @@ const filteredItems = computed(() => {
     );
 });
 
-const purchaseItem = (item) => {
-    router.post('/purchase', {
-        item_id: item.id
-    }, {
+const purchase = (item) => {
+    const payload = item.is_bundle
+        ? { bundle_id: item.id }
+        : { item_id: item.id };
+
+        console.log(item);
+        
+
+    router.post('/purchase', payload, {
         onStart: () => {
             console.log('Purchasing...')
         },
@@ -106,10 +114,10 @@ const pieces = ['pawn', 'knight', 'bishop', 'queen', 'king', 'rook']
             </div>
 
             <div class="space-y-12">
-                <div v-for="item in filteredItems.filter(i => i.is_bundle)" :key="'set-' + item.id" class="group">
+                <div v-for="bundle in filteredItems.filter(i => i.is_bundle)" :key="'set-' + bundle.id" class="group">
                     <div class="flex justify-between items- mb-4 px-2">
                         <div>
-                            <h3 class="text-xl font-bold text-white">{{ item.name }}</h3>
+                            <h3 class="text-xl font-bold text-white">{{ bundle.name }}</h3>
                             <span class="text-[10px] text-gray-500 uppercase tracking-widest">Full Collection</span>
                         </div>
                     </div>
@@ -118,23 +126,23 @@ const pieces = ['pawn', 'knight', 'bishop', 'queen', 'king', 'rook']
                         <div class="flex justify-between items-center gap-4 hover:border-white/20 transition-all">
                             <div v-for="p in pieces" :key="p"
                                 class="relative w-20 h-20 group-hover:scale-110 transition-transform duration-500">
-                                <img :src="`/assets/skins/${item.folder}/black-${p}.svg`"
+                                <img :src="`/assets/skins/${bundle.folder}/black-${p}.svg`"
                                     class="absolute inset-0 w-full h-full opacity-40" />
-                                <img :src="`/assets/skins/${item.folder}/white-${p}.svg`"
+                                <img :src="`/assets/skins/${bundle.folder}/white-${p}.svg`"
                                     class="absolute inset-0 w-full h-full"
                                     style="clip-path: polygon(0 0, 100% 0, 0 100%);" />
                             </div>
                         </div>
                         <div class="flex items-center justify-between border-t border-white/10 pt-4">
                             <span class="text-sm font-bold text-white">
-                                {{ item.description }}
+                                {{ bundle.description }}
                             </span>
                             <div class="flex gap-5">
                                 <span class="text-lg font-bold text-white">
-                                    {{ item.price }} <span class="text-sm text-gray-400">CC</span>
+                                    {{ bundle.price }} <span class="text-sm text-gray-400">CC</span>
                                 </span>
-                                <PrimaryButton class="!px-3 !py-2 !rounded-xl" @click="purchaseItem(item)">
-                                    Purchase Set
+                                <PrimaryButton :class="bundle.is_owned ? 'bg-white/50 pointer-events-none' : 'bg-white'" @click="purchase(bundle)">
+                                    {{bundle.is_owned ? 'Owned' : 'Purchase Set'}}
                                 </PrimaryButton>
                             </div>
                         </div>
@@ -174,7 +182,7 @@ const pieces = ['pawn', 'knight', 'bishop', 'queen', 'king', 'rook']
                                 <p class="text-gray-500 text-xs mb-4">{{ item.price }} CC</p>
                                 <PrimaryButton
                                     class="w-full py-3 bg-white text-black rounded-xl text-xs tracking-widest"
-                                    @click="purchaseItem(item)">
+                                    @click="purchase(item)">
                                     {{ item.type === 'board' ? 'Buy Board' : 'Buy Piece' }}
                                 </PrimaryButton>
                             </div>

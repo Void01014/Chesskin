@@ -3,6 +3,7 @@ import { computed, watch } from 'vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 
 const props = defineProps({
+    isPuzzle: Boolean,
     gameState: String,
     winner: [Number, null],
     playerColor: String,
@@ -10,7 +11,7 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'rematch', 'game-ended']);
 
-const isVisible = computed(() => props.gameState === 'GAME_OVER');
+const isVisible = computed(() => props.gameState === 'GAME_OVER' && !props.isPuzzle);
 
 const resultData = computed(() => {
     if (props.winner === null) {
@@ -28,7 +29,7 @@ const resultData = computed(() => {
 watch(
     () => props.gameState,
     (newState, oldState) => {
-        if (newState === 'GAME_OVER' && oldState !== 'GAME_OVER') {
+        if (newState === 'GAME_OVER' && oldState !== 'GAME_OVER' && !props.isPuzzle) {
             emit('game-ended');
         }
     }

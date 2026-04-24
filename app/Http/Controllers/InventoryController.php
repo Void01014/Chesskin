@@ -15,9 +15,13 @@ class InventoryController extends Controller
     {
         $user = Auth::user();
         $items = $user->items()->with('bundle')->get();
+
+        // dd($items);
         
         return Inertia::render('Inventory', [
             'items' => $items
         ]);
     }
+
+
 }

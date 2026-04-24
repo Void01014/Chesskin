@@ -21,10 +21,6 @@ class HistoryController extends Controller
             ->get();
 
 
-        dd($history);
-
-        return;
-
         return Inertia::render('History/History', [
             'history' => GameHistoryResource::collection($history),
         ]);

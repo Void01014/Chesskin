@@ -21,7 +21,7 @@ export default class Game {
         this.winner = null;
         this.currentPlayer = 'white';
 
-        this.humanColor = 'white';
+        this.humanColor = Math.random() > 0.5 ? 'white' : 'black';
         this.isAiGame = mode;
         this.bot_id = bot_id ?? null;
         this.aiWorker = new Worker('/js/stockfish.js');
@@ -71,8 +71,6 @@ export default class Game {
         } else {
             this.initializeBoard();
         }
-
-
     }
 
     initializeBoard() {
@@ -329,7 +327,7 @@ export default class Game {
                 this.state = gameState.GAME_OVER
             }
         }
-        
+
         this.finalizeTurn(false);
     }
 
@@ -518,7 +516,6 @@ export default class Game {
         this.PotentialCheckMoves = [];
         this.pendingPromotion = null;
 
-
         if (!retry && this.isAiGame && this.currentPlayer !== this.humanColor) {
             setTimeout(() => {
                 const aiMove = this.getAIMove();
@@ -540,7 +537,6 @@ export default class Game {
         const chosen_char = pieceName === 'Knight' ? 'n' : pieceName[0].toLowerCase();
 
         this.history[this.history.length - 1] += chosen_char;
-        alert(this.history[this.history.length - 1])
         this.board.setPiece(row, col, promotedPiece)
 
         this.check_n_checkmate();
@@ -661,6 +657,8 @@ export default class Game {
 
 
     generatePuzzle(fen) {
+        console.log(fen);
+
         this.pendingPromotion = null;
 
         const pieces = {

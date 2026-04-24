@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue';
-import { Head, usePage } from '@inertiajs/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Navbar from '@/Components/Navbar.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
@@ -60,6 +60,12 @@ const sets = computed(() => {
 })
 
 const pieces = ['pawn', 'knight', 'bishop', 'queen', 'king', 'rook']
+
+const equip_item = async () => {
+    router.post('equip', {
+        item_id:1
+    })
+}
 </script>
 
 <template>

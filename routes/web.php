@@ -36,7 +36,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('shop', [StoreController::class, 'index'])->name('shop');
     Route::post('purchase', [StoreController::class, 'purchase'])->middleware('auth');
+
     Route::get('inventory', [InventoryController::class, 'index'])->middleware('auth')->name('inventory');
+    Route::post('equip-item', [InventoryController::class, 'equipItem'])->name('equip.item');
+    Route::post('equip-set', [InventoryController::class, 'equipSet'])->name('equip.set');
 
     Route::get('puzzle', [PlayController::class, 'puzzle'])->name('puzzle');
     Route::post('/puzzle/{puzzle}/completed', [PlayController::class, 'completed'])

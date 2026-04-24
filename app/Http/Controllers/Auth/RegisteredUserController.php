@@ -42,10 +42,8 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'equipped_board_id' => 13,
-            'equipped_theme' => 'Classic',
-            'custom_pieces' => [],
-            'isAdmin' => false,
-            'credits' => 500,
+            'credits' => 5000,
+            'is_admin' => false,
         ]);
 
         event(new Registered($user));

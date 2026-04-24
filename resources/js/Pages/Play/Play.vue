@@ -85,6 +85,12 @@ const startGame = async (options, game_ended) => {
         game.value = reactive(new Game(mode, difficulty, timeLimit, bot_id, false, null, null));
     }
 
+    if (game.value.isAiGame && game.value.humanColor !== game.value.currentPlayer) {
+        setTimeout(() => {
+            game.value.getAIMove();
+            game.value.board.grid = [...game.value.board.grid];
+        }, 250);
+    }
 };
 
 const stopGame = async (game_ended) => {
@@ -204,8 +210,7 @@ const storeGame = (game) => {
             <div v-if="!choosing_op"
                 class="flex flex-col sm:flex-row items-center sm:h-full w-[85vw] sm:w-[115vh] gap-4 ">
                 <div class="flex justify-center w-full">
-                    <ChessBoard :game="game" skin="ace_attourney"
-                        @game-ended="storeGame(game)"
+                    <ChessBoard :game="game" skin="ace_attourney" @game-ended="storeGame(game)"
                         @rematch="startGame(options, game?.state === 'GAME_OVER')"
                         @close="stopGame(game?.state === 'GAME_OVER')">
                     </ChessBoard>

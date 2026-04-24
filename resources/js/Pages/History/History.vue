@@ -12,7 +12,6 @@ const props = defineProps({
   history: Object
 })
 
-const search = ref('')
 const modeFilter = ref(['pvp', 'pvai'])
 
 const toggleMode = (mode) => {
@@ -27,9 +26,6 @@ const toggleMode = (mode) => {
 const filteredGames = computed(() => {
   return props.history.data.filter(g => {
     if (!modeFilter.value.includes(g.mode)) return false
-
-    if (search.value && !g.mode.toLowerCase().includes(search.value.toLowerCase()))
-      return false
 
     return true
   })
@@ -66,7 +62,9 @@ const resultText = (g) => {
 }
 
 const resultColor = (g) => {
-  if (g.is_draw) return 'text-gray-400'
+  if (g.is_draw) return 'text-red-400'
+  console.log(g);
+  
   return g.user_won ? 'text-green-400' : 'text-red-400'
 }
 </script>
@@ -78,13 +76,8 @@ const resultColor = (g) => {
   <AuthenticatedLayout>
     <div class="max-w-6xl mt-20 mx-auto px-4 py-8">
 
-      <!-- SEARCH + FILTERS -->
+      <!--  FILTERS -->
       <div class="flex flex-col gap-6 mb-12 max-w-md mx-auto">
-        <div class="flex gap-4">
-          <input v-model="search" type="text" placeholder="Search mode..."
-            class="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-white focus:border-white/30" />
-        </div>
-
         <div class="flex justify-center gap-3">
           <PrimaryButton @click="toggleMode('pvp')"
             :class="modeFilter.includes('pvp') ? '!bg-white text-black' : '!bg-black text-white ring ring-white/20'">

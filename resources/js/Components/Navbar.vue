@@ -40,6 +40,9 @@ const user = computed(() => page.props.auth.user)
                 <NavLink :href="route('inventory')" :active="route().current('inventory')">
                     Inventory
                 </NavLink>
+                <NavLink :href="route('history')" :active="route().current('history')">
+                    History
+                </NavLink>
             </div>
 
             <div class="hidden sm:ms-6 sm:flex sm:items-center">

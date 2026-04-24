@@ -50,6 +50,7 @@ const startPuzzle = (id, puzzle, level) => {
         false,
         'medium',
         null,
+        null,
         true,
         puzzle.positions,
         puzzle.solution
