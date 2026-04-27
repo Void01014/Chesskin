@@ -20,6 +20,7 @@ export default class Game {
         this.state = gameState.SELECTING_PIECE;
         this.winner = null;
         this.currentPlayer = 'white';
+        this.timeLimit = timeLimit;
 
         if(ispuzzle){
             this.humanColor = human_color;
@@ -325,7 +326,7 @@ export default class Game {
             const kingMoves = op_king.getPotentialMoves(moveContext);
 
             if (is_check) {
-                this.winner = this.currentPlayer == 'white' ? 1 : 2;
+                this.winner = this.currentPlayer === 'white' ? 1 : 2;
                 this.state = gameState.GAME_OVER
             } else if (kingMoves.length === 0) {
                 this.state = gameState.GAME_OVER
@@ -530,10 +531,10 @@ export default class Game {
     promote(pieceName, color) {
         const [row, col] = this.pendingPromotion;
         const pieceClasses = {
-            'Queen': Queen,
-            'Rook': Rook,
-            'Knight': Knight,
-            'Bishop': Bishop
+            'queen': Queen,
+            'rook': Rook,
+            'knight': Knight,
+            'bishop': Bishop
         };
 
         const chosenClass = pieceClasses[pieceName];

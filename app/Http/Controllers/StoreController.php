@@ -72,8 +72,6 @@ class StoreController extends Controller
             if ($request->bundle_id) {
                 $bundle = Bundle::with('items')->findOrFail($request->bundle_id);
 
-                // dd($bundle.items);
-
                 foreach ($bundle->items as $item) {
                     Inventory::create([
                         'user_id' => $user->id,

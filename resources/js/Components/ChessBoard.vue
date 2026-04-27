@@ -1,5 +1,5 @@
 <script setup>
-import { router } from '@inertiajs/vue3';
+import { ref } from 'vue';
 import GameOverModal from '@/Components/GameOver.vue';
 
 
@@ -16,6 +16,8 @@ const props = defineProps({
 const mapped_pieces = {};
 const mapped_random_pieces = {};
 
+const gameKey = ref(0);
+
 props.equipped_pieces.forEach((equipment, index) => {
     mapped_pieces[equipment.item.slug] = equipment.item.folder;
 
@@ -25,14 +27,11 @@ props.equipped_pieces.forEach((equipment, index) => {
     }
 });
 
-console.log(mapped_pieces.pawn);
-
-// alert(mapped_pieces.pawn)
-
 
 const emit = defineEmits(['rematch', 'close', 'game-ended']);
 
 const handleRematch = () => {
+    gameKey.value++;
     emit('rematch');
 };
 
@@ -56,29 +55,38 @@ const gameEnded = () => {
                 <div v-for="(piece, c) in row" :key="`sq-${r}-${c}`" @click="game.handleSquareClick(r, c)"
                     class="square relative flex justify-center items-center aspect-square w-full cursor-pointer">
 
-                    <img v-if="piece" :src="`/assets/skins/${piece.color === game.humanColor
+                    <img v-if="piece" :key="`${gameKey}-${r}-${c}-${piece.color}-${piece.constructor.name}`" :src="`/assets/skins/${piece.color === game.humanColor
                         ? mapped_pieces[piece.constructor.name.toLowerCase()]
                         : mapped_random_pieces[piece.constructor.name.toLowerCase()]
                         }/${piece.color}-${piece.constructor.name.toLowerCase()}.svg`" :class="[
-                                    'piece absolute w-[90%] pointer-events-none transition-transform duration-200',
-                                    game.humanColor === 'black' ? 'rotate-180' : '',
-                                    piece.color === game.humanColor ? 'glow-blue' : 'glow-red'
-                                ]" />
+                            'piece absolute pointer-events-none transition-transform duration-200',
+                            'w-[90%] h-[90%] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
+                            game.humanColor === 'black' ? 'rotate-180' : ''
+                        ]" />
                     <div v-if="game.board.highlightedMoves.some(m => m[0] === r && m[1] === c)"
                         class="highlight pointer-events-none z-20">
                     </div>
                 </div>
             </template>
 
-            <div v-if="props.game?.state === 'PROMOTION_PENDING'" id="overlay"
-                :class="['flex justify-center items-center absolute h-full w-full bg-[#0000006d]', game.humanColor === 'black' ? 'rotate-180' : '']">
+            <div v-if="props.game?.state === 'PROMOTION_PENDING'" id="overlay" :class="['flex justify-center items-center absolute h-full w-full bg-[#0000006d] z-50',
+                game.humanColor === 'black' ? 'rotate-180' : '']">
+
                 <section id="promotionModal"
                     class="absolute flex items-center justify-center bg-white gap-2 h-[100px] w-[440px] p-1 rounded-xl shadow-[0_0_10px_gray]">
+
+                    <template v-for="type in ['queen', 'rook', 'bishop', 'knight']" :key="type">
+                        <img :id="type" :src="`/assets/skins/${mapped_pieces[type]}/${game.humanColor}-${type}.svg`"
+                            :alt="type" @click="game.promote(type, game.currentPlayer)"
+                            class="piece h-[100%] cursor-pointer hover:bg-gray-100 rounded-lg transition-colors" />
+                    </template>
+
                 </section>
             </div>
 
             <GameOverModal :is-puzzle="game.ispuzzle" :game-state="game.state" :winner="game.winner"
-                :player-color="game.humanColor" @close="handleClose" @rematch="handleRematch" @game-ended="gameEnded" />
+                :player-color="game.humanColor" @close="handleClose" @rematch="handleRematch" @game-ended="gameEnded"
+                :class="game.humanColor === 'black' ? 'rotate-180' : ''" />
         </div>
 
     </div>
@@ -120,7 +128,7 @@ const gameEnded = () => {
 }
 
 .piece {
-    /* Optional: filter to make pieces pop if board is dark */
+    transform-origin: center center;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.33));
 }
 

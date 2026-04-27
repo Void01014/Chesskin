@@ -13,13 +13,13 @@ const user = computed(() => page.props.auth.user)
 </script>
 
 <template>
-    <nav class="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-5xl">
+    <nav class="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-5xl">
         <div
-            class="bg-black/40 h-20 backdrop-blur-xl border border-white/10 py-4 px-8 rounded-2xl flex items-center justify-between shadow-2xl transition-all duration-500">
+            class="bg-black/40 h-20 backdrop-blur-xl border border-white/10 py-4 px-4 rounded-2xl flex items-center justify-between shadow-2xl transition-all duration-500">
 
             <div class="flex items-center gap-2">
                 <Link :href="route('welcome')" class="flex items-center gap-3 group">
-                    <span class="text-sm font-black tracking-[0.4em] uppercase text-white">Chesskin</span>
+                    <span class="text-lg font-black tracking-[0.4em] uppercase text-white">Chesskin</span>
                 </Link>
             </div>
 
@@ -33,9 +33,9 @@ const user = computed(() => page.props.auth.user)
             </div>
 
             <!-- Desktop auth -->
-            <div class="hidden sm:ms-6 sm:flex sm:items-center">
+            <div class="hidden sm:flex sm:items-center">
                 <div v-if="user"
-                    class="flex items-center gap-2 px-4 py-1.5 bg-zinc-900/70 border border-white/10 rounded-xl backdrop-blur-md shadow-lg text-sm font-semibold tracking-wide">
+                    class="flex items-center gap-2 px-2 py-1.5 bg-zinc-900/70 border border-white/10 rounded-xl backdrop-blur-md shadow-lg text-sm font-semibold tracking-wide">
                     <span class="text-white">{{ user.credits }}</span>
                     <span class="text-zinc-400 text-xs">CC</span>
                 </div>

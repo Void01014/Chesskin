@@ -35,11 +35,19 @@ class PlayController extends Controller
             'mode' => 'required|in:pvp,pvai',
             'bot_id' => 'nullable|integer',
             'player_color' => 'required|string',
-            'winner' => 'required|integer|in:0,1,2',
+            'winner' => 'nullable|integer|in:1,2',
             'moves' => 'required|array',
         ]);
 
-        auth()->user()->games()->create($request->all());
+        $user = auth()->user();
+
+        // Save the game
+        $game = $user->games()->create($request->all());
+
+
+        if ($game->user_won) {
+            $user->increment('credits', 10);
+        }
 
         return redirect()->back();
     }
