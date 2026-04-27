@@ -34,6 +34,14 @@ class BundleItemSeeder extends Seeder
                 'created_at' => $now1,
                 'updated_at' => $now1,
             ],
+            [
+                'id' => 3,
+                'name' => 'Chesskin Set',
+                'price' => 5000,
+                'description' => 'Complete collection of the Chesskin Set pieces',
+                'created_at' => $now3,
+                'updated_at' => $now3,
+            ],
         ]);
 
         // --------------------
@@ -78,8 +86,16 @@ class BundleItemSeeder extends Seeder
             ['id' => 21, 'name' => 'Breaking Bad Pawn', 'type' => 'piece', 'price' => 700, 'folder' => 'breaking_bad', 'slug' => 'pawn', 'bundle_id' => null, 'created_at' => $now3, 'updated_at' => $now3],
 
             // Naruto
-            ['id' => 25, 'name' => 'Naruto Bishop', 'type' => 'piece', 'price' => 900, 'folder' => 'naruto', 'slug' => 'bishop', 'bundle_id' => null, 'created_at' => $now3, 'updated_at' => $now3],
-            ['id' => 26, 'name' => 'Naruto Queen', 'type' => 'piece', 'price' => 1000, 'folder' => 'naruto', 'slug' => 'queen', 'bundle_id' => null, 'created_at' => $now3, 'updated_at' => $now3],
+            ['id' => 25, 'name' => 'Naruto Bishop', 'type' => 'piece', 'price' => 2000, 'folder' => 'naruto', 'slug' => 'bishop', 'bundle_id' => null, 'created_at' => $now3, 'updated_at' => $now3],
+            ['id' => 26, 'name' => 'Sasuke Queen', 'type' => 'piece', 'price' => 2000, 'folder' => 'naruto', 'slug' => 'queen', 'bundle_id' => null, 'created_at' => $now3, 'updated_at' => $now3],
+
+            // Chesskin full set
+            ['id' => 27, 'name' => 'Chesskin King', 'type' => 'piece', 'price' => 1000, 'folder' => 'chesskin', 'slug' => 'king', 'bundle_id' => 3, 'created_at' => $now3, 'updated_at' => $now3],
+            ['id' => 28, 'name' => 'Chesskin Queen', 'type' => 'piece', 'price' => 1000, 'folder' => 'chesskin', 'slug' => 'queen', 'bundle_id' => 3, 'created_at' => $now3, 'updated_at' => $now3],
+            ['id' => 29, 'name' => 'Chesskin Rook', 'type' => 'piece', 'price' => 900, 'folder' => 'chesskin', 'slug' => 'rook', 'bundle_id' => 3, 'created_at' => $now3, 'updated_at' => $now3],
+            ['id' => 30, 'name' => 'Chesskin Bishop', 'type' => 'piece', 'price' => 900, 'folder' => 'chesskin', 'slug' => 'bishop', 'bundle_id' => 3, 'created_at' => $now3, 'updated_at' => $now3],
+            ['id' => 31, 'name' => 'Chesskin Knight', 'type' => 'piece', 'price' => 900, 'folder' => 'chesskin', 'slug' => 'knight', 'bundle_id' => 3, 'created_at' => $now3, 'updated_at' => $now3],
+            ['id' => 32, 'name' => 'Chesskin Pawn', 'type' => 'piece', 'price' => 800, 'folder' => 'chesskin', 'slug' => 'pawn', 'bundle_id' => 3, 'created_at' => $now3, 'updated_at' => $now3],
         ]);
     }
 }

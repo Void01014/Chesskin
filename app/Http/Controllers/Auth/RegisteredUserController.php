@@ -3,7 +3,11 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Bundle;
+use App\Models\Inventory;
+use App\Models\Item;
 use App\Models\User;
+use App\Models\UserEquippedPiece;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -46,10 +50,40 @@ class RegisteredUserController extends Controller
             'is_admin' => false,
         ]);
 
+        $classicBundle = Bundle::with('items')
+            ->where('name', 'Classic Set')
+            ->first();
+
+        $classicBoard = Item::find(13);
+
+        Inventory::create([
+            'user_id' => $user->id,
+            'item_id' => $classicBoard->id,
+        ]);
+
+        if ($classicBundle) {
+            foreach ($classicBundle->items as $item) {
+                Inventory::create([
+                    'user_id' => $user->id,
+                    'item_id' => $item->id,
+                ]);
+
+                UserEquippedPiece::updateOrCreate(
+                    [
+                        'user_id' => $user->id,
+                        'piece' => $item->slug,
+                    ],
+                    [
+                        'item_id' => $item->id,
+                    ]
+                );
+            }
+        }
+
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect(route('welcome', absolute: false));
     }
 }

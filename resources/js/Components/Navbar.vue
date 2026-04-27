@@ -26,9 +26,9 @@ const user = computed(() => page.props.auth.user)
             <div class="hidden md:flex items-center gap-10">
                 <NavLink :href="route('welcome')" :active="route().current('welcome')">Home</NavLink>
                 <NavLink :href="route('shop')" :active="route().current('shop')">Shop</NavLink>
-                <NavLink :href="route('play')" :active="route().current('play')">Play</NavLink>
-                <NavLink :href="route('puzzle')" :active="route().current('puzzle')">Puzzles</NavLink>
                 <NavLink :href="route('inventory')" :active="route().current('inventory')">Inventory</NavLink>
+                <NavLink :href="route('puzzle')" :active="route().current('puzzle')">Puzzles</NavLink>
+                <NavLink :href="route('play')" :active="route().current('play')">Play</NavLink>
                 <NavLink :href="route('history')" :active="route().current('history')">History</NavLink>
             </div>
 

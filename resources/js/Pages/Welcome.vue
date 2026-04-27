@@ -22,13 +22,13 @@ defineProps({
 });
 
 const items = [
-    { name: 'Classic King', folder: 'classic', type: 'king' },
-    { name: 'Cibernetic Pawn', folder: 'cibernetic', type: 'pawn' },
-    { name: 'Ace Attourney Queen', folder: 'ace_attourney', type: 'queen' },
+    { name: 'Adventure Time pawn', folder: 'adventure_time', type: 'pawn' },
+    { name: 'Walter White', folder: 'breaking_bad', type: 'pawn' },
+    { name: 'Naruto Queen', folder: 'naruto', type: 'queen' },
     { name: 'Marble Pawn', folder: 'marble', type: 'pawn' },
-    { name: 'Ace Attourney Bishop', folder: 'ace_attourney', type: 'bishop' },
+    { name: 'Ace Attorney Bishop', folder: 'ace_attorney', type: 'bishop' },
     { name: 'Classic Rook', folder: 'classic', type: 'rook' },
-    { name: 'Ace Attourney Knight', folder: 'ace_attourney', type: 'knight' },
+    { name: 'Chesskin Knight', folder: 'chesskin', type: 'knight' },
 ]
 
 </script>
@@ -48,10 +48,10 @@ const items = [
         <main class="overflow-hidden relative pt-56 pb-20 px-6 flex flex-col items-center text-center">
 
             <div class="absolute top-40 flex gap-4 opacity-50 pointer-events-none">
-                <img src="/assets/skins/ace_attourney/white-rook.svg"
+                <img src="/assets/skins/ace_attorney/white-rook.svg"
                     class="w-32 h-32  rotate-12 rounded-xl bg-white/10" />
                 <img src="/assets/skins/marble/white-pawn.svg" class="w-32 h-32  -rotate-12 rounded-xl bg-white/10" />
-                <img src="/assets/skins/ace_attourney/black-queen.svg"
+                <img src="/assets/skins/ace_attorney/black-queen.svg"
                     class="w-32 h-32  rotate-6 rounded-xl bg-white/10" />
             </div>
 
