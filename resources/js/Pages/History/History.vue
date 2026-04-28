@@ -12,9 +12,6 @@ const props = defineProps({
   history: Object
 })
 
-console.log(props.history);
-
-
 const modeFilter = ref(['pvp', 'pvai'])
 
 const toggleMode = (mode) => {
@@ -66,7 +63,6 @@ const resultText = (g) => {
 
 const resultColor = (g) => {
   if (g.is_draw) return 'text-gray-300'
-  console.log(g);
   
   return g.user_won ? 'text-green-400' : 'text-red-400'
 }

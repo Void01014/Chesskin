@@ -52,7 +52,6 @@ const skillLevels = {
     20: 'expert'
 };
 
-const rematchKey = ref(0);
 const choosing_op = ref(true);
 
 const game = ref(null);
@@ -96,9 +95,6 @@ const startGame = async (options, game_ended) => {
             game.value.board.grid = [...game.value.board.grid];
         }, 250);
     }
-    rematchKey.value++;
-    console.log(rematchKey.value);
-
 };
 
 const stopGame = async (game_ended) => {
@@ -220,7 +216,7 @@ const storeGame = (game) => {
                 <div class="flex justify-center w-full">
                     <ChessBoard :game="game" :equipped_pieces=equipped_pieces :equipped_board=equipped_board
                         :random_bundle=random_bundle @game-ended="storeGame(game)"
-                        :rematch-key="rematchKey" @rematch="startGame(options, game?.state === 'GAME_OVER')"
+                        @rematch="startGame(options, game?.state === 'GAME_OVER')"
                         @close="stopGame(game?.state === 'GAME_OVER')">
                     </ChessBoard>
                 </div>

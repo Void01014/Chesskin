@@ -26,7 +26,7 @@ const submit = () => {
         <Head title="Register" />
 
         <form @submit.prevent="submit"
-            class="w-full max-w-md bg-[#0f0f0f] p-8 rounded-[2.5rem] border border-white/5 shadow-2xl">
+            class="w-full max-w-md bg-[#0f0f0f] py-6 px-8 rounded-[2.5rem] border border-white/5 shadow-2xl">
 
             <div class="mb-5">
                 <InputLabel for="name" value="Full Name" />
@@ -55,7 +55,7 @@ const submit = () => {
                 <InputError class="mt-2 text-xs" :message="form.errors.password_confirmation" />
             </div>
 
-            <div class="mt-10 flex flex-col gap-6">
+            <div class="mt-10 flex flex-col gap-2">
                 <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
                     Create Account
                 </PrimaryButton>

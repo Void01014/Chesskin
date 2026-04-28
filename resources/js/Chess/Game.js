@@ -37,9 +37,6 @@ export default class Game {
                 this.handleAiResponse(uciMove);
             }
         };
-        this.aiWorker.onerror = (error) => {
-            console.error("Stockfish Worker Error:", error);
-        };
         this.aiWorker.postMessage('uci');
         this.aiWorker.postMessage('isready');
         this.aiWorker.postMessage('setoption name UCI_LimitStrength value true');
@@ -145,8 +142,6 @@ export default class Game {
             this.validMovesForSelected = selectedPiece.getPotentialMoves(moveContext);
 
             this.board.RenderMoves(this.validMovesForSelected)
-        } else {
-            // console.log("Empty square or wrong color!");
         }
     }
 
@@ -156,16 +151,13 @@ export default class Game {
         const selectedPiece = this.board.getPiece(this.selectedSquare.row, this.selectedSquare.col);
 
         const isMoveLegal = this.validMovesForSelected.some(move => move[0] === row && move[1] === col);
-        // console.log(`Potential moves for ${selectedPiece.constructor.name}:`, this.validMovesForSelected);
 
         if (!isMoveLegal) {
-            // console.log("Move pattern is not legal!, please try again");
             this.finalizeTurn(true);
             return
         }
 
         if (selectedPosition && selectedPosition.color == this.currentPlayer) {
-            // console.log(`position ${row},${col} is already taked by your ${selectedPosition.constructor.name}`);
             this.finalizeTurn(true);
             return;
         }
@@ -217,7 +209,6 @@ export default class Game {
             this.history.push(`${from_uci + to_uci}`)
             this.check_n_checkmate(startRow, startCol, endRow, endCol);
         }
-        // console.log(`Moved to ${endRow},${endCol}`);
     }
 
     handleSpecialMoves(selectedPiece, startRow, startCol, endRow, endCol, aiPromotionChoice) {
@@ -343,7 +334,6 @@ export default class Game {
         const expectedMove = this.puzzleSolution[currentIndex];
 
         if (!expectedMove) {
-            console.log("Puzzle already completed or no more moves expected");
             return;
         }
 
@@ -356,10 +346,8 @@ export default class Game {
             endCol === expEndCol
         ) {
             this.puzzle_played_moves.push([startRow, startCol, endRow, endCol]);
-            console.log("Correct move");
 
             if (this.puzzle_played_moves.length === this.puzzleSolution.length) {
-                console.log("Puzzle solved!");
                 this.puzzleCompleted = true;
             } else {
                 //pre-defined move
@@ -377,7 +365,6 @@ export default class Game {
                 }, 400);
             }
         } else {
-            console.log("Wrong move");
             this.finalizeTurn(true);
             return false;
         }
@@ -494,7 +481,6 @@ export default class Game {
 
                     for (const [mrow, mcol] of potentialMoves) {
                         if (this.sandboxValidation(r, c, mrow, mcol, piece, color)) {
-                            // console.log(`Valid move: (${r}, ${c}) -> (${mrow}, ${mcol})`);
                             canMove = true;
                         }
                     }
@@ -662,8 +648,6 @@ export default class Game {
 
 
     generatePuzzle(fen) {
-        console.log(fen);
-
         this.pendingPromotion = null;
 
         const pieces = {

@@ -18,8 +18,9 @@ const user = computed(() => page.props.auth.user)
             class="bg-black/40 h-20 backdrop-blur-xl border border-white/10 py-4 px-4 rounded-2xl flex items-center justify-between shadow-2xl transition-all duration-500">
 
             <div class="flex items-center gap-2">
-                <Link :href="route('welcome')" class="flex items-center gap-3 group">
-                    <span class="text-lg font-black tracking-[0.4em] uppercase text-white">Chesskin</span>
+                <Link :href="route('welcome')" class="flex items-center gap-1 group">
+                    <span><img src="/assets/logo/logo.svg" alt="" class="inline w-[2.5rem] m-0 p-0"></span>
+                    <span class="text-lg font-black tracking-[0.4em] uppercase text-white">Chesskn</span>
                 </Link>
             </div>
 
