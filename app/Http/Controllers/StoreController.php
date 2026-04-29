@@ -57,14 +57,11 @@ class StoreController extends Controller
             'bundle_id' => 'nullable|exists:bundles,id',
         ]);
 
-        
-        if (! $request->item_id && ! $request->bundle_id) {
-            return response()->json(['error' => 'Nothing to purchase'], 400);
-        }
-        if ($request->item_id && $request->bundle_id) {
-            return response()->json(['error' => 'Invalid request'], 400);
-        }
+        if (!$request->item_id && !$request->bundle_id)
+            return back()->with('error', 'Nothing to purchase');
 
+        if ($request->item_id && $request->bundle_id)
+            return back()->with('error', 'Invalid request');
 
         $user = auth()->user();
 
@@ -72,33 +69,35 @@ class StoreController extends Controller
             if ($request->bundle_id) {
                 $bundle = Bundle::with('items')->findOrFail($request->bundle_id);
 
+                if ($user->credits < $bundle->price)
+                    return back()->with('error', 'Not enough credits');
+
                 foreach ($bundle->items as $item) {
-                    Inventory::create([
+                    Inventory::firstOrCreate([
                         'user_id' => $user->id,
-                        'item_id' => $item->id  
+                        'item_id' => $item->id
                     ]);
                 }
+
+                $user->decrement('credits', $bundle->price);
             } else {
                 $item = Item::findOrFail($request->item_id);
 
-                if ($user->inventories()->where('item_id', $item->id)->exists()) {
-                    return response()->json(['error' => 'Already owned'], 409);
-                }
+                if ($user->inventories()->where('item_id', $item->id)->exists())
+                    return back()->with('error', 'You already own this item');
 
-                if ($user->credits < $item->price) {
-                    return response()->json(['error' => 'Not enough credits'], 402);
-                }
+                if ($user->credits < $item->price)
+                    return back()->with('error', 'Not enough credits');
 
                 $user->decrement('credits', $item->price);
-                $user->save();
 
                 Inventory::create([
                     'user_id' => $user->id,
                     'item_id' => $item->id
                 ]);
-
-                $user->credits -= $item->price;
             }
+
+            return back()->with('success', 'Purchase successful');
         });
     }
 }

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { Head, usePage, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Navbar from '@/Components/Navbar.vue';
@@ -13,12 +13,13 @@ const props = defineProps({
     variants: Array
 })
 
-console.log(props.variants);
-
 
 const search = ref('');
 const filters = ref(['pieces', 'sets', 'boards'])
 const hideOwned = ref(true)
+const toast = ref(null)
+const toastVisible = ref(false)
+let toastTimeout = null
 
 const toggleFilter = (type) => {
     if (filters.value.includes(type)) {
@@ -54,13 +55,25 @@ const filteredItems = computed(() => {
     );
 });
 
+watch(() => page.props.flash, (flash) => {
+    if (flash?.error || flash?.success) {
+        toast.value = {
+            message: flash.error || flash.success,
+            type: flash.error ? 'error' : 'success'
+        }
+        toastVisible.value = true
+        clearTimeout(toastTimeout)
+        toastTimeout = setTimeout(() => toastVisible.value = false, 3500)
+    }
+}, { deep: true })
+
 const purchase = (item) => {
     const payload = item.is_bundle
         ? { bundle_id: item.id }
         : { item_id: item.id };
 
-        console.log(item);
-        
+    console.log(item);
+
 
     router.post('/purchase', payload, {
         onStart: () => {
@@ -118,7 +131,7 @@ const pieces = ['pawn', 'knight', 'bishop', 'queen', 'king', 'rook']
                             <span class="text-[10px] text-gray-500 uppercase tracking-widest">Full Collection</span>
                         </div>
                     </div>
-                    
+
                     <div class="bg-white/5 border border-white/10 rounded-[2rem] p-8  flex flex-col gap-3">
                         <div class="flex justify-between items-center gap-4 hover:border-white/20 transition-all">
                             <div v-for="p in pieces" :key="p"
@@ -138,8 +151,9 @@ const pieces = ['pawn', 'knight', 'bishop', 'queen', 'king', 'rook']
                                 <span class="text-lg font-bold text-white">
                                     {{ bundle.price }} <span class="text-sm text-gray-400">CC</span>
                                 </span>
-                                <PrimaryButton :class="bundle.is_owned ? 'bg-white/50 pointer-events-none' : 'bg-white'" @click="purchase(bundle)">
-                                    {{bundle.is_owned ? 'Owned' : 'Purchase Set'}}
+                                <PrimaryButton :class="bundle.is_owned ? 'bg-white/50 pointer-events-none' : 'bg-white'"
+                                    @click="purchase(bundle)">
+                                    {{ bundle.is_owned ? 'Owned' : 'Purchase Set' }}
                                 </PrimaryButton>
                             </div>
                         </div>
@@ -189,6 +203,36 @@ const pieces = ['pawn', 'knight', 'bishop', 'queen', 'king', 'rook']
 
             </div>
         </div>
+        <Transition enter-active-class="transition duration-300 ease-out" enter-from-class="opacity-0 translate-y-4"
+            enter-to-class="opacity-100 translate-y-0" leave-active-class="transition duration-200 ease-in"
+            leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 translate-y-4">
+            <div v-if="toastVisible && toast" :class="[
+                'fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-6 py-4 rounded-2xl border backdrop-blur-md shadow-2xl text-sm font-medium tracking-wide',
+                toast.type === 'error'
+                    ? 'bg-red-950/80 border-red-500/20 text-red-300'
+                    : 'bg-green-950/80 border-green-500/20 text-green-300'
+            ]">
+
+                <!-- icon -->
+                <svg v-if="toast.type === 'error'" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 9v2m0 4h.01M12 3a9 9 0 100 18A9 9 0 0012 3z" />
+                </svg>
+                <svg v-else class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+
+                {{ toast.message }}
+
+                <button @click="toastVisible = false" class="ml-2 text-white/30 hover:text-white/70 transition-colors">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </Transition>
     </AuthenticatedLayout>
 </template>
 

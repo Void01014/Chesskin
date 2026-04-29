@@ -6,7 +6,6 @@ import Navbar from '@/Components/Navbar.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import Game from '@/Chess/Game';
 import ChessBoard from '@/Components/ChessBoard.vue';
-import axios from 'axios';
 
 const props = defineProps({
     puzzles: Array,
@@ -70,7 +69,6 @@ const startPuzzle = (id, puzzle, level) => {
 
     puzzleInterval.value = setInterval(() => {
         timer.value++;
-        // console.log(`Elapsed time: ${timer.value} seconds`);
     }, 1000);
 };
 
