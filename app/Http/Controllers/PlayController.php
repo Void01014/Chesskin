@@ -92,6 +92,8 @@ class PlayController extends Controller
             'updated_at' => now(),
         ]);
 
+        $user->increment('credits', 10);
+
         return redirect()->back();
     }
 }
