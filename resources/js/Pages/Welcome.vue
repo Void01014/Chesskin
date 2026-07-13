@@ -102,9 +102,6 @@ const items = [
                 </div>
             </div>
         </main>
-
-        <footer class="py-20 text-center opacity-30">
-        </footer>
     </div>
 </template>
 
