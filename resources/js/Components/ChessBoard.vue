@@ -13,7 +13,14 @@ const props = defineProps({
     random_bundle: Array,
 });
 
-const mapped_pieces = {};
+const mapped_pieces = {
+    king: 'classic',
+    queen: 'classic',
+    rook: 'classic',
+    bishop: 'classic',
+    knight: 'classic',
+    pawn: 'classic'
+};
 const mapped_random_pieces = {};
 
 const gameKey = ref(0);
@@ -50,7 +57,7 @@ const gameEnded = () => {
         <div :class="[
             'board-wrapper grid grid-cols-8 w-full aspect-square relative rounded-sm',
             game.humanColor === 'black' ? 'rotate-180' : ''
-        ]" :style="`background-image: url('/assets/skins/boards/${props.equipped_board.slug}.svg')`">
+        ]" :style="`background-image: url('/assets/skins/boards/${props.equipped_board?.slug || \'classic\'}.svg')`">
             <template v-for="(row, r) in game.board.grid" :key="'row-' + r">
                 <div v-for="(piece, c) in row" :key="`sq-${r}-${c}`" @click="game.handleSquareClick(r, c)"
                     class="square relative flex justify-center items-center aspect-square w-full cursor-pointer">
