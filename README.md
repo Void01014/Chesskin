@@ -37,8 +37,4 @@ Review your past games to analyze your performance and track your progress.
 
 ### 📱 Responsive Design
 Play seamlessly on any device—desktop, tablet, or mobile.
-<!-- Replace with actual path to screenshot -->
-![Responsive Design Screenshot](./public/assets/screenshots/responsive.png)
 
----
-*Note: The screenshot paths are currently placeholders. Please add your actual screenshots to `public/assets/screenshots/` or update the paths in this README.*
