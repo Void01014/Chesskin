@@ -1,5 +1,5 @@
-# Use the official PHP 8.3 image with Apache
-FROM php:8.3-apache
+# Use the official PHP 8.4 image with Apache
+FROM php:8.4-apache
 
 # Install system dependencies required for Laravel and PostgreSQL
 RUN apt-get update && apt-get install -y \
