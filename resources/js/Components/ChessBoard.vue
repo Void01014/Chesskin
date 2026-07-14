@@ -21,7 +21,14 @@ const mapped_pieces = {
     knight: 'classic',
     pawn: 'classic'
 };
-const mapped_random_pieces = {};
+const mapped_random_pieces = {
+    king: 'classic',
+    queen: 'classic',
+    rook: 'classic',
+    bishop: 'classic',
+    knight: 'classic',
+    pawn: 'classic'
+};
 
 const gameKey = ref(0);
 
