@@ -1,6 +1,8 @@
 import Piece from "./Piece.js"
 
 export default class Queen extends Piece {
+    get type() { return 'Queen'.toLowerCase(); }
+
     getPotentialMoves(moveContext) {
         const { row, col, board, friendlyFire } = moveContext;
         let potentialMoves = [];
@@ -29,7 +31,7 @@ export default class Queen extends Piece {
                         potentialMoves.push([newRow, newCol]);
                     }
 
-                    if (pieceAtLocation.color !== this.color && pieceAtLocation.constructor.name === "King") {
+                    if (pieceAtLocation.color !== this.color && pieceAtLocation.type === "king") {
                         const rowBehind = newRow + dr;
                         const colBehind = newCol + dc;
 

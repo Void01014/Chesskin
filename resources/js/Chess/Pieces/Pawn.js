@@ -1,6 +1,8 @@
 import Piece from "./Piece.js"
 
 export default class Pawn extends Piece {
+    get type() { return 'Pawn'.toLowerCase(); }
+
     constructor(color, row) {
         super(color);
 

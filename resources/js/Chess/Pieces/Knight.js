@@ -1,6 +1,8 @@
 import Piece from "./Piece.js"
 
 export default class Knight extends Piece {
+    get type() { return 'Knight'.toLowerCase(); }
+
     getPotentialMoves(moveContext) {
         const { row, col, board, friendlyFire } = moveContext;
         const offsets = [

@@ -1,6 +1,8 @@
 import Piece from "./Piece.js"
 
 export default class Bishop extends Piece {
+    get type() { return 'Bishop'.toLowerCase(); }
+
     getPotentialMoves(moveContext) {
         const { row, col, board, friendlyFire } = moveContext;
         let potentialMoves = [];
@@ -24,7 +26,7 @@ export default class Bishop extends Piece {
                     if (pieceAtLocation.color !== this.color || (pieceAtLocation.color === this.color && friendlyFire)) {
                         potentialMoves.push([newRow, newCol]);
                     }
-                    if (pieceAtLocation.color !== this.color && pieceAtLocation.constructor.name === "King") {
+                    if (pieceAtLocation.color !== this.color && pieceAtLocation.type === "king") {
                         const rowBehind = newRow + dr;
                         const colBehind = newCol + dc;
 

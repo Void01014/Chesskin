@@ -69,10 +69,10 @@ const gameEnded = () => {
                 <div v-for="(piece, c) in row" :key="`sq-${r}-${c}`" @click="game.handleSquareClick(r, c)"
                     class="square relative flex justify-center items-center aspect-square w-full cursor-pointer">
 
-                    <img v-if="piece" :key="`${gameKey}-${r}-${c}-${piece.color}-${piece.constructor.name}`" :src="`/assets/skins/${piece.color === game.humanColor
-                        ? mapped_pieces[piece.constructor.name.toLowerCase()]
-                        : mapped_random_pieces[piece.constructor.name.toLowerCase()]
-                        }/${piece.color}-${piece.constructor.name.toLowerCase()}.svg`" :class="[
+                    <img v-if="piece" :key="`${gameKey}-${r}-${c}-${piece.color}-${piece.type}`" :src="`/assets/skins/${piece.color === game.humanColor
+                        ? mapped_pieces[piece.type]
+                        : mapped_random_pieces[piece.type]
+                        }/${piece.color}-${piece.type}.svg`" :class="[
                             'piece absolute pointer-events-none transition-transform duration-200',
                             'w-[90%] h-[90%] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
                             game.humanColor === 'black' ? 'rotate-180' : ''

@@ -1,6 +1,8 @@
 import Piece from "./Piece.js"
 
 export default class King extends Piece {
+    get type() { return 'King'.toLowerCase(); }
+
     getPotentialMoves(moveContext) {
         const { row, col, board, PotentialCheckMoves, friendlyFire, castling } = moveContext;
         let potentialMoves = [];
@@ -47,7 +49,7 @@ export default class King extends Piece {
                             break;
                         }
 
-                        if (piece && piece.constructor.name !== "Rook") {
+                        if (piece && piece.type !== "rook") {
                             break;
                         } else if (!piece) {
                             newCol--;
@@ -68,7 +70,7 @@ export default class King extends Piece {
                             break;
                         }
 
-                        if (piece && piece.constructor.name !== "Rook") {
+                        if (piece && piece.type !== "rook") {
                             break;
                         } else if (!piece) {
                             newCol++;

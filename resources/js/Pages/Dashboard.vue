@@ -17,7 +17,7 @@ const game = reactive(new Game('pvai', 'medium', null, true, '6k1/5ppp/8/8/8/8/5
                     (r + c) % 2 !== 0 ? 'bg-green-700' : 'bg-[#eeeed2]'
                 ]">
                     <img v-if="piece"
-                        :src="`/assets/skins/ace_attourney/${piece.color}-${piece.constructor.name.toLowerCase()}.svg`"
+                        :src="`/assets/skins/ace_attourney/${piece.color}-${piece.type}.svg`"
                         class="piece absolute w-[90%] z-10 pointer-events-none" />
                     <div v-if="game.board.highlightedMoves.some(m => m[0] === r && m[1] === c)"
                         class="highlight pointer-events-none z-20">

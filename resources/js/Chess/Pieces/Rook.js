@@ -2,6 +2,8 @@ import Piece from "./Piece.js"
 
 
 export default class Rook extends Piece {
+    get type() { return 'Rook'.toLowerCase(); }
+
     getPotentialMoves(moveContext) {
         const { row, col, board, friendlyFire } = moveContext;
         const potentialMoves = [];
@@ -25,7 +27,7 @@ export default class Rook extends Piece {
                     if (pieceAtSquare.color !== this.color || (pieceAtSquare.color === this.color && friendlyFire)) {
                         potentialMoves.push([newRow, newCol]);
                     }
-                    if (pieceAtSquare.color !== this.color && pieceAtSquare.constructor.name === "King") {
+                    if (pieceAtSquare.color !== this.color && pieceAtSquare.type === "king") {
                         const rowBehind = newRow + dr;
                         const colBehind = newCol + dc;
 

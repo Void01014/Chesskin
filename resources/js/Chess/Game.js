@@ -124,7 +124,7 @@ export default class Game {
             this.state = gameState.SELECTING_MOVE;
             const selectedPiece = this.board.getPiece(this.selectedSquare.row, this.selectedSquare.col);
 
-            if (selectedPiece.constructor.name === "King") {
+            if (selectedPiece.type === "king") {
                 this.getPotentialCheckMoves(otherColor);
             }
 
@@ -213,7 +213,7 @@ export default class Game {
 
     handleSpecialMoves(selectedPiece, startRow, startCol, endRow, endCol, aiPromotionChoice) {
         // En Passant capture
-        if (selectedPiece.constructor.name === 'Pawn' && this.enPassantTarget) {
+        if (selectedPiece.type === 'pawn' && this.enPassantTarget) {
             const [epRow, epCol] = this.enPassantTarget;
 
             if (endRow === (selectedPiece.color === 'white' ? 2 : 5) && endCol === epCol) {
@@ -222,7 +222,7 @@ export default class Game {
         }
 
         // En Passant target update
-        if (selectedPiece.constructor.name === 'Pawn' && Math.abs(startRow - endRow) === 2) {
+        if (selectedPiece.type === 'pawn' && Math.abs(startRow - endRow) === 2) {
             this.enPassantTarget = [endRow, endCol];
         } else {
             this.enPassantTarget = null;
@@ -234,7 +234,7 @@ export default class Game {
         }
 
         // Castling move (rook movement)
-        if (selectedPiece.constructor.name === 'King') {
+        if (selectedPiece.type === 'king') {
             if (endCol - startCol > 1) {
                 const rook = this.board.getPiece(startRow, 7);
                 this.board.setPiece(startRow, 5, rook);
@@ -247,9 +247,9 @@ export default class Game {
         }
 
         // Castling rights update
-        if (selectedPiece.constructor.name === 'King') {
-            this.castling[selectedPiece.color] = [];
-        } else if (selectedPiece.constructor.name === 'Rook') {
+        if (selectedPiece.type === 'king') {
+            this.castlingRights[color].kingside = false;
+        } else if (selectedPiece.type === 'rook') {
             const kingCol = this.kingPositions[selectedPiece.color].c;
             const rookCol = startCol;
 
@@ -265,7 +265,7 @@ export default class Game {
         }
 
         // Promotion
-        const isPawn = selectedPiece.constructor.name === 'Pawn';
+        const isPawn = selectedPiece.type === 'pawn';
         const promotionRank = selectedPiece.color === 'white' ? 0 : 7;
 
         if (isPawn && endRow === promotionRank) {
@@ -376,7 +376,7 @@ export default class Game {
 
         this.board.grid.forEach((row, r) => {
             row.forEach((position, c) => {
-                if (position && position.constructor.name === 'King' && position.color == color) {
+                if (position && position.type === 'king' && position.color == color) {
                     kingPosition.r = r;
                     kingPosition.c = c;
                 }
@@ -424,7 +424,7 @@ export default class Game {
 
     sandboxValidation(originalRow, originalCol, desiredRow, desiredCol, piece, color) {
         const originalOccupant = this.board.getPiece(desiredRow, desiredCol);
-        const isKing = piece.constructor.name === 'King';
+        const isKing = piece.type === 'king';
         const otherColor = color === 'white' ? 'black' : 'white';
 
 
@@ -460,7 +460,7 @@ export default class Game {
         for (const [r, row] of grid.entries()) {
             for (const [c, piece] of row.entries()) {
                 if (piece && piece.color === otherColor) {
-                    if (piece.constructor.name === "King") {
+                    if (piece.type === "king") {
                         this.getPotentialCheckMoves(color);
                     }
 
@@ -554,7 +554,7 @@ export default class Game {
                         emptyCount = 0;
                     }
                     // Handle Knight (N) vs King (K)
-                    let char = piece.constructor.name === "Knight" ? "N" : piece.constructor.name[0];
+                    let char = piece.type === "knight" ? "N" : piece.type[0].toUpperCase();
                     // Uppercase for White, Lowercase for Black
                     rowStr += piece.color === "white" ? char.toUpperCase() : char.toLowerCase();
                 }
